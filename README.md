@@ -2,8 +2,8 @@
 
 A virtual serial port driver for a Micro Switch 7-bit ASCII keyboard.
 
-The hardware documentation that came with this keyboard can be found
-[here](http://home.comcast.net/~mmcm/kbd/Micro%20Switch.PDF).
+A scan of the hardware documentation that came with this keyboard can 
+be found in the [wiki](https://github.com/MMcM/micro-switch-ascii-kbd/wiki/scanned/MicroSwitch.pdf).
 
 This keyboard is mostly the same as the
 [NCR one](http://www.computerhistory.org/collections/catalog/102672973)
