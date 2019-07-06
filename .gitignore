@@ -9,4 +9,3 @@ local.mk*
 *.o
 *.sym
 *.elc
-ibm-5251-kbd-mode
