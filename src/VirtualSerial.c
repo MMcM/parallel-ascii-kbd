@@ -75,15 +75,27 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 #define CONTROL_PIN PIND
 #define CONTROL_DDR DDRD
 #define CONTROL_STROBE (1 << 0)
-#define CONTROL_SHIFT (1 << 1)
-#define CONTROL_CTRL (1 << 3)
+#define CONTROL_STROBE_INTERRUPT (1 << INT0)
+#ifndef CONTROL_STROBE_TRIGGER
+#define CONTROL_STROBE_TRIGGER TRIGGER_FALLING
+#endif
+#define TRIGGER_FALLING (1 << ISC01)
+#define TRIGGER_RISING ((1 << ISC01) | (1 << ISC00))
+#ifndef CONTROL_NSHIFTS
+#define CONTROL_NSHIFTS 0
+#endif
+#if CONTROL_NSHIFTS > 0
+#define CONTROL_SHIFTS_SHIFT 1
+#define CONTROL_SHIFTS_MASK (((1<<CONTROL_SHIFTS_SHIFT) - 1) << CONTROL_SHIFTS_SHIFT)
+#endif
 
 /*** Character Queue ***/
 
 typedef struct {
   unsigned charCode:7;
-  unsigned shift:1;
-  unsigned ctrl:1;
+#if CONTROL_NSHIFTS > 0
+  unsigned shifts:CONTROL_NSHIFTS;
+#endif
 } queue_entry_t;
 #define QUEUE_SIZE 16
 static queue_entry_t CharQueue[QUEUE_SIZE];
@@ -120,20 +132,24 @@ static inline void QueueAdd(queue_entry_t entry)
 
 /*** Keyboard Interface ***/
 
-static void Micro_Switch_Kbd_Init(void)
+static void Parallel_Kbd_Init(void)
 {
   QueueClear();
 
   // Enable pullups.
   CHAR_PORT |= 0x7F;
-  CONTROL_PORT |= CONTROL_STROBE | CONTROL_SHIFT | CONTROL_CTRL;
+  CONTROL_PORT |= CONTROL_STROBE
+#if CONTROL_NSHIFTS > 0
+    | CONTROL_SHIFTS_MASK
+#endif
+    ;
 
-  // Interrupt 0 on falling edge of STROBE
-  EIMSK |= (1 << INT0);
-  EICRA |= (1 << ISC01);
+  // Interrupt 0 on trigger edge of STROBE
+  EIMSK |= CONTROL_STROBE_INTERRUPT;
+  EICRA |= CONTROL_STROBE_TRIGGER;
 }
 
-static void Micro_Switch_Kbd_Task(void)
+static void Parallel_Kbd_Task(void)
 {
   queue_entry_t entry;
   
@@ -154,8 +170,9 @@ ISR(INT0_vect)
   queue_entry_t entry;
 
   entry.charCode = CHAR_PIN & 0x7F;
-  entry.shift = ((CONTROL_PIN & CONTROL_SHIFT) == 0);
-  entry.ctrl = ((CONTROL_PIN & CONTROL_CTRL) == 0);
+#if CONTROL_NSHIFTS > 0
+  entry.shifts = (~CONTROL_PIN & CONTROL_SHIFTS_MASK) >> CONTROL_SHIFTS_SHIFT;
+#endif
 
   if (!QueueIsFull()) {
     QueueAdd(entry);
@@ -174,7 +191,7 @@ int main(void)
 
   for (;;)
   {
-    Micro_Switch_Kbd_Task();
+    Parallel_Kbd_Task();
 
     /* Must throw away unused bytes from the host, or it will lock up while waiting for the device */
     CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
@@ -207,7 +224,7 @@ void SetupHardware(void)
 #endif
 
   /* Hardware Initialization */
-  Micro_Switch_Kbd_Init();
+  Parallel_Kbd_Init();
   LEDs_Init();
   USB_Init();
 }
