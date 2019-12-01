@@ -76,3 +76,38 @@ seems to work fine.
 | L   | CHAR BIT 5          | PB4 |
 | M   | CHAR BIT 6          | PB5 |
 | N   | CHAR BIT 7          | PB6 |
+
+## Digital LK01 ##
+
+This is the main keyboard inside the VT05 display terminal and the LA32 printing terminal.
+
+It comes in two variants. The earlier one, originally from Control Devices, uses
+capacitive switches, but this proved to be unrealiable. The replacement uses a Stackpole
+grid. The PCBs are generally similar and have compatible interfaces.
+
+There is an LSI chip on the board that handles key scanning and mapping to a base
+character.  After that, the terminal is [bit-paired](https://en.wikipedia.org/wiki/Bit-paired_keyboard),
+clearing bits 6 &amp; 7 for `CTRL` and toggling bit 6 if bit 7 is set else bit 5 for `SHIFT`.
+(See character chart [here](https://vt100.net/docs/vt05-rm/table1-1.html).) This chip needs -12V, but there
+is a voltage converter in the keyboard itself.
+
+They keyboard is connected to the terminal by a 40-pin ribbon cable. Only half of those are connected and there are only half as many again (ten) signals, each of which is wired to the two adjacent pins.
+
+The schematic for the terminal is page 20/75 in [VT05 Engineering Drawings](http://bitsavers.org/pdf/dec/terminal/vt05/VT05_Engineering_Drawings_Jun71.pdf).
+The schematic for a similar keyboard is page 13/19 of [LK40 Engineeering Drawings](http://www.bitsavers.org/pdf/dec/graphics/VT11/LK40_Engineering_Drawings_Dec77.pdf). This shows the connector pinout.
+
+
+### Connections ###
+
+| Berg  | Signal              | AVR |
+|-------|---------------------|-----|
+| A  B  | STROBE              | PD0 |
+| K  L  | CHAR BIT 5          | PB4 |
+| H  J  | CHAR BIT 6          | PB5 |
+| C  D  | CHAR BIT 7          | PB6 |
+| W  X  | GND                 | GND |
+| Y  Z  | +5V                 | +5V |
+| MM NN | CHAR BIT 3          | PB2 |
+| PP RR | CHAR BIT 2          | PB1 |
+| SS TT | CHAR BIT 4          | PB3 |
+| UU VV | CHAR BIT 1          | PB0 |
