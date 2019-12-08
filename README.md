@@ -2,6 +2,15 @@
 
 A virtual serial port driver for a 7-bit ASCII keyboard.
 
+## Purpose ##
+
+This project represents a compromise in converting old keyboards to USB. When a keyboard only sends ASCII characters, emulating a PC keyboard is a bit pointless, since there are no modifier or function keys and no key up transitions.
+
+For a typing test, connect a terminal program. For instance, on Linux,
+```
+cu -l /dev/ttyACM0 -s 115200
+```
+
 ## Keyboards ##
 
 This project was originally designed for the Micro Switch SW-series keyboard described [below](#micro-switch-sw-11234).
@@ -151,5 +160,5 @@ Some scanned pages of documentation are in the [Wiki](https://github.com/MMcM/pa
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_FALLING -DCHAR_MASK=0xFF -DCHAR_INVERT
+PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF -DCHAR_INVERT
 ```
