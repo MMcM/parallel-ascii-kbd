@@ -71,6 +71,10 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 #define CHAR_PORT PORTB
 #define CHAR_PIN PINB
 
+#ifndef CHAR_MASK
+#define CHAR_MASK 0x7F
+#endif
+
 #define CONTROL_PORT PORTD
 #define CONTROL_PIN PIND
 #define CONTROL_DDR DDRD
@@ -92,9 +96,9 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 /*** Character Queue ***/
 
 typedef struct {
-  unsigned charCode:7;
+  uint8_t charCode;
 #if CONTROL_NSHIFTS > 0
-  unsigned shifts:CONTROL_NSHIFTS;
+  uint8_t shifts;
 #endif
 } queue_entry_t;
 #define QUEUE_SIZE 16
@@ -137,7 +141,7 @@ static void Parallel_Kbd_Init(void)
   QueueClear();
 
   // Enable pullups.
-  CHAR_PORT |= 0x7F;
+  CHAR_PORT |= CHAR_MASK;
   CONTROL_PORT |= CONTROL_STROBE
 #if CONTROL_NSHIFTS > 0
     | CONTROL_SHIFTS_MASK
@@ -169,7 +173,11 @@ ISR(INT0_vect)
 {
   queue_entry_t entry;
 
-  entry.charCode = CHAR_PIN & 0x7F;
+  entry.charCode =
+#ifdef CHAR_INVERT
+    ~
+#endif
+    CHAR_PIN & CHAR_MASK;
 #if CONTROL_NSHIFTS > 0
   entry.shifts = (~CONTROL_PIN & CONTROL_SHIFTS_MASK) >> CONTROL_SHIFTS_SHIFT;
 #endif
