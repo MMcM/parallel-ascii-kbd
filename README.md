@@ -77,6 +77,12 @@ seems to work fine.
 | M   | CHAR BIT 6          | PB5 |
 | N   | CHAR BIT 7          | PB6 |
 
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCONTROL_NSHIFTS=2
+```
+
 ## Digital LK01 ##
 
 This is the main keyboard inside the VT05 display terminal and the LA32 printing terminal.
@@ -96,7 +102,6 @@ They keyboard is connected to the terminal by a 40-pin ribbon cable. Only half o
 The schematic for the terminal is page 20/75 in [VT05 Engineering Drawings](http://bitsavers.org/pdf/dec/terminal/vt05/VT05_Engineering_Drawings_Jun71.pdf).
 The schematic for a similar keyboard is page 13/19 of [LK40 Engineeering Drawings](http://www.bitsavers.org/pdf/dec/graphics/VT11/LK40_Engineering_Drawings_Dec77.pdf). This shows the connector pinout.
 
-
 ### Connections ###
 
 | Berg  | Signal              | AVR |
@@ -111,3 +116,40 @@ The schematic for a similar keyboard is page 13/19 of [LK40 Engineeering Drawing
 | PP RR | CHAR BIT 2          | PB1 |
 | SS TT | CHAR BIT 4          | PB3 |
 | UU VV | CHAR BIT 1          | PB0 |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+```
+
+## Consul 262.3 ##
+
+A late Soviet Hall Effect keyboard.
+
+* Even the keyboards with Cyrillic and Latin legends just send Latin characters.
+* The arrow keys and numpad send characters with the high bit set.
+
+Some scanned pages of documentation are in the [Wiki](https://github.com/MMcM/parallel-ascii-kbd/wiki).
+
+### Connections ###
+
+| Signal |  Pin  | AVR |
+|--------|-------|-----|
+| KD0    |   6   | PB0 |
+| KD1    |  12   | PB1 |
+| KD2    |   7   | PB2 |
+| KD3    |   8   | PB3 |
+| KD4    |  11   | PB4 |
+| KD5    |   9   | PB5 |
+| KD6    |  10   | PB6 |
+| KD7    |   4   | PB7 |
+| STROB  |  16   | PD0 |
+| +5V    |   2   | 5V  |
+| ⏚      | 1,3,5 | GND |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_FALLING -DCHAR_MASK=0xFF -DCHAR_INVERT
+```
