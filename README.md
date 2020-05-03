@@ -92,6 +92,58 @@ seems to work fine.
 PARALLEL_KBD_OPTS = -DCONTROL_NSHIFTS=2
 ```
 
+## Micro Switch SD-16234 ##
+
+This PCB seems to have been used in a variety of keyboards. The one I tested as a 99SD24-3.
+
+Connection to the keyboard is through a 34-pin IDC connector.
+
+### Connections ###
+
+Needed for this:
+
+| IDC | Signal              | AVR |
+|-----|---------------------|-----|
+| 1,2,|
+|3,4,5| GND                 | GND |
+|33,34|
+|19,20| +5V                 | +5V |
+|     |                     |     |
+| 22  | STROBE              | PD0 |
+| 10  | CHAR BIT 1          | PB0 |
+|  8  | CHAR BIT 2          | PB1 |
+|  7  | CHAR BIT 3          | PB2 |
+|  9  | CHAR BIT 4          | PB3 |
+| 11  | CHAR BIT 5          | PB4 |
+| 13  | CHAR BIT 6          | PB5 |
+| 15  | CHAR BIT 7          | PB6 |
+| 17  | CHAR BIT 8          | PB7 |
+
+Additional signals on this board not needed here:
+
+| IDC | Signal |
+|-----|--------|
+| 12  | Jumper 38 (open) |
+| 14  | Jumper 34 (open) |
+| 12  | Jumper 30 (open) |
+| 21  | Optocoupled transistor (E) |
+| 23  | Optocoupled transistor (C) |
+| 25  | RESET  |
+| 27  | INT    |
+| 29  | RD     |
+| 31  | PSEN   |
+| 24  | LED (not populated) |
+| 26  | LED    |
+| 28  | LED    |
+| 30  | LED    |
+| 32  | LED    |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF
+```
+
 ## Digital LK01 ##
 
 This is the main keyboard inside the VT05 display terminal and the LA32 printing terminal.
