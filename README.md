@@ -214,3 +214,33 @@ Some scanned pages of documentation are in the [Wiki](https://github.com/MMcM/pa
 ```
 PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF -DCHAR_INVERT
 ```
+
+## Beehive B100 ##
+
+The keyboard interface is described in the [Beehive B100 Computer Terminal - Maintenance Manual](http://www.computinghistory.org.uk/downloads/32424). Schematic 9 of 16 of the terminal gives the signals on the keyboard connector, an Augat 18-pin DIP.
+
+### Connections ###
+
+| DIP | Signal        | AVR |
+|-----|---------------|-----|
+| 1,9 | +5V           | 5V  |
+|11,18| GND           | GND |
+|     |               |     |
+| 15  | /KEYSTROBE    | PD0 |
+|  8  | KB IN 1       | PB0 |
+|  7  | KB IN 2       | PB1 |
+|  6  | KB IN 3       | PB2 |
+|  5  | KB IN 4       | PB3 |
+|  4  | KB IN 5       | PB4 |
+|  3  | KB IN 6       | PB5 |
+|  2  | KB IN 7       | PB6 |
+|     |               |     |
+| 12  | /BREAK EN     |     |
+| 13  | /RESET        |     |
+| 14  | /INTERNAL OPN |     |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS =
+```
