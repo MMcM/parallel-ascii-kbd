@@ -244,3 +244,35 @@ The keyboard interface is described in the [Beehive B100 Computer Terminal - Mai
 ```
 PARALLEL_KBD_OPTS =
 ```
+
+## Amkey SNK-58 ##
+
+Part of some kind of (T-Bar?) EIA test equipment. The keys legends have the ASCII CTRL character name on the corresponding key.
+
+### Command Keys ###
+
+These blue keys send codes with the eight it set.
+
+| Legend   | Code |
+|----------|------|
+| HEX PAIR | 81   |
+| CMND     | 82   |
+| STEP     | 83   |
+| RUN      | 84   |
+| CLEAR    | 85   |
+| <-       | 86   |
+| STOP     | 87   |
+
+### Connections ###
+
+Connects with a 20-pin ribbon cable with a key pin missing.
+
+The side opposite the key pin has power: starting from that end, two pins of +5VDC and eight pins of ground.
+
+The keyed side has, after the missing pin, the strobe signal (idle high), then eight data bits in order 4, 5, 6, 7, 3, 2, 1, 0.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF
+```
