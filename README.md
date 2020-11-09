@@ -16,9 +16,8 @@ cu -l /dev/ttyACM0 -s 115200
 This project was originally designed for the Micro Switch SW-series keyboard described [below](#micro-switch-sw-11234).
 
 But it should work for a variety of keyboards that send ASCII characters via a parallel interface with a strobe line.
-These were used in early hobbyist computers, including the original Apple (see [Operation Manual](https://archive.org/details/Apple-1_Operation_Manual_1976_Apple_a/page/n2)).
+These were used in early hobbyist computers, including the original Apple (see [below](#apple-1)).
 
-* Early Datanetics keyboards (see [notes](https://www.applefritter.com/node/2809) they took from Apple).
 * Jameco JE610 ([datasheet](http://www.bitsavers.org/pdf/jameco/Jameco_JE_610_ASCII_Keyboard_Datasheet.pdf)).
 
 ## Hardware ##
@@ -276,3 +275,72 @@ The keyed side has, after the missing pin, the strobe signal (idle high), then e
 ```
 PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF
 ```
+
+## Apple II / II Plus ##
+
+Earlier versions of the keyboard had an NSC MM5740 encoder chip. This was replaced by a separate encoder daughter board with an SMC KR3600. (A keyboard without the daughter card requires scanning the matrix directly through the 26-pin connector, which is a different project.)
+
+Note that the encoders do not generate lowercase characters. In the case of MM5740, this is a restriction of the chip. The KR3600 has 10 output pins to allow for selecting alphabetic shifting. And the encoder board has two jumpers that can be cut and a slider switch installed to go from `B5` and `B6` to `B9` and `B8` for `K4` and `K5` and thereby get both cases.
+
+Some sources:
+* [Understanding the Apple II](https://archive.org/details/understanding_the_apple_ii/page/n167/mode/2up)
+* [Apple II/II+ Keyboard Socket](http://wiki.apple2.org/index.php?title=Pinouts#Apple_II.2FII.2B_Keyboard_Socket)
+* [Early Apple Keyboards](http://www.willegal.net/appleii/early-a2-keyboards.htm)
+
+### Connections ###
+
+A ribbon cable connected to a 16-pin DIP on the motherboard.
+
+The encoder also needs -12VDC, but not with very much current, so a cheap converter from the USB +5VDC works fine.
+
+| DIP | Signal       | AVR |
+|-----|--------------|-----|
+|  1  | +5V          | VCC |
+|  2  | STROBE       | PD0 |
+|  3  | /RESET       | PD1 |
+|  4  |              |     |
+|  5  | K5           | PB5 |
+|  6  | K4           | PB4 |
+|  7  | K6           | PB6 |
+|  8  | GROUND       | GND |
+|  9  |              |     |
+| 10  | K2           | PB2 |
+| 11  | K3           | PB3 |
+| 12  | K0           | PB0 |
+| 13  | K1           | PB1 |
+| 14  |              |     |
+| 15  | -12V         |     |
+| 16  |              |     |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+```
+
+### Apple 1 ###
+
+The original Apple also connected to the keyboard with a 16 pin DIP (`B4`) and was not manufactured with a keyboard of its own (see [Operation Manual](https://archive.org/details/Apple-1_Operation_Manual_1976_Apple_a/page/n2)). The pinout is not the same, however. It additionally needs +12V.
+
+| DIP | Signal       | AVR |
+|-----|--------------|-----|
+|  1  | RESET        | PD1 |
+|  2  | B4           | PB3 |
+|  3  | B3           | PB2 |
+|  4  | B2           | PB1 |
+|  5  | B1           | PB0 |
+|  6  | B5           | PB4 |
+|  7  | B6           | PB5 |
+|  8  | B7           | PB6 |
+|  9  | GROUND       | PB4 |
+| 10  | +12V         |     |
+| 11  | -12V         |     |
+| 12  | CLEAR SCREEN | PD2 |
+| 13  |              |     |
+| 14  | STROBE       | PD0 |
+| 15  | B8           | PB7 |
+| 16  | +5V          | VCC |
+
+Examples:
+
+* Early Datanetics keyboards (see [notes](https://www.applefritter.com/node/2809) they took from Apple).
