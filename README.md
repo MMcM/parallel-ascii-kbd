@@ -18,14 +18,13 @@ This project was originally designed for the Micro Switch SW-series keyboard des
 But it should work for a variety of keyboards that send ASCII characters via a parallel interface with a strobe line.
 These were used in early hobbyist computers, including the original Apple (see [below](#apple-1)).
 
-* Jameco JE610 ([datasheet](http://www.bitsavers.org/pdf/jameco/Jameco_JE_610_ASCII_Keyboard_Datasheet.pdf)).
-
 ## Hardware ##
 
-The board needs a lot of GPIO pins, so an actual Arduino is not a great choice.
+The board needs a lot of GPIO pins, particularly all of PORTB, so an actual Arduino is not a great choice.
 
 * [Teensy 2.0](https://www.pjrc.com/teensy/index.html).
-* [Adafruit Atmega32u4 breakout](http://www.ladyada.net/products/atmega32u4breakout/).
+* ~~[Adafruit Atmega32u4 breakout](http://www.ladyada.net/products/atmega32u4breakout/)~~ (discontinued).
+* [Pololu A-Star 32U4 Mini SV](https://www.pololu.com/product/3145).
 
 ### Connections ###
 
@@ -352,7 +351,7 @@ PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF
 
 Earlier versions of the keyboard had an NSC MM5740 encoder chip. This was replaced by a separate encoder daughter board with an SMC KR3600. (A keyboard without the daughter card requires scanning the matrix directly through the 26-pin connector, which is a different project.)
 
-Note that the encoders do not generate lowercase characters. In the case of MM5740, this is a restriction of the chip. The KR3600 has 10 output pins to allow for selecting alphabetic shifting. And the encoder board has two jumpers that can be cut and a slider switch installed to go from `B5` and `B6` to `B9` and `B8` for `K4` and `K5` and thereby get both cases.
+Note that the encoders do not generate lowercase characters. In the case of MM5740, this is a restriction of the chip. The KR3600 has 10 output pins to allow for selecting alphabetic shifting. And the encoder board has two jumpers that can be cut and a toggle switch installed to go from `B5` and `B6` to `B9` and `B8` for `K4` and `K5` and thereby get both cases.
 
 Some sources:
 * [Understanding the Apple II](https://archive.org/details/understanding_the_apple_ii/page/n167/mode/2up)
@@ -452,4 +451,39 @@ A SPDT switch can be installed to select between encoder `B9` and `B6` for outpu
 
 ```
 PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+```
+
+## Jameco JE610 ##
+
+Another keyboard popular with early hobbyists.
+([Datasheet](http://www.bitsavers.org/pdf/jameco/Jameco_JE_610_ASCII_Keyboard_Datasheet.pdf)).
+It uses the GI AY-5-2376 encoder.
+
+Output is via a 16-pin DIP (`J1`) and an 18-pin edge connector (`P1`).
+
+### Connections ###
+
+| J1 | P1 | Signal       | AVR |
+|----|----|--------------|-----|
+|  1 |  3 | NEG STROBE   | PD0 |
+|  2 |  5 | D5           | PB5 |
+|  3 |  7 | D0           | PB0 |
+|  4 |  9 | D1           | PB1 |
+|  5 | 11 | D2           | PB2 |
+|  6 | 13 | D3           | PB3 |
+|  7 | 15 | D4           | PB4 |
+|  8 |1718| GROUND       | GND |
+|  9 | 16 | -12V         |     |
+| 10 | 14 | UD1          | PD1 |
+| 11 | 12 | UD2          | PD2 |
+| 12 | 10 | D6           | PB6 |
+| 13 |  8 | D7           | PB7 |
+| 14 |  6 | PARITY       |     |
+| 15 |  4 | POS STROBE   |     |
+| 16 | 1,2| +5V          | VCC |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = 
 ```
