@@ -75,6 +75,10 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 #define CHAR_MASK 0x7F
 #endif
 
+#ifndef CHAR_PULLUP_MASK
+#define CHAR_PULLUP_MASK CHAR_MASK
+#endif
+
 #define CONTROL_PORT PORTD
 #define CONTROL_PIN PIND
 #define CONTROL_DDR DDRD
@@ -91,6 +95,19 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 #if CONTROL_NSHIFTS > 0
 #define CONTROL_SHIFTS_SHIFT 1
 #define CONTROL_SHIFTS_MASK (((1<<CONTROL_SHIFTS_SHIFT) - 1) << CONTROL_SHIFTS_SHIFT)
+#endif
+
+#ifdef READY_STATE
+#define READY_PORT PORTC
+#define READY_DDR DDRC
+#define READY_MASK (1 << 7)
+#define READY_HIGH true
+#define READY_LOW false
+#if READY_STATE == READY_HIGH
+#define READY_ON READY_PORT |= READY_MASK
+#else
+#define READY_ON READY_PORT &= ~READY_MASK
+#endif
 #endif
 
 /*** Character Queue ***/
@@ -141,7 +158,7 @@ static void Parallel_Kbd_Init(void)
   QueueClear();
 
   // Enable pullups.
-  CHAR_PORT |= CHAR_MASK;
+  CHAR_PORT |= CHAR_PULLUP_MASK;
   CONTROL_PORT |= CONTROL_STROBE
 #if CONTROL_NSHIFTS > 0
     | CONTROL_SHIFTS_MASK
@@ -151,6 +168,11 @@ static void Parallel_Kbd_Init(void)
   // Interrupt 0 on trigger edge of STROBE
   EIMSK |= CONTROL_STROBE_INTERRUPT;
   EICRA |= CONTROL_STROBE_TRIGGER;
+
+#ifdef READY_STATE
+  READY_DDR |= READY_MASK;
+  READY_ON;
+#endif
 }
 
 static void Parallel_Kbd_Task(void)
