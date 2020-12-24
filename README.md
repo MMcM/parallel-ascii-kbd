@@ -344,3 +344,40 @@ The original Apple also connected to the keyboard with a 16 pin DIP (`B4`) and w
 Examples:
 
 * Early Datanetics keyboards (see [notes](https://www.applefritter.com/node/2809) they took from Apple).
+
+## Maxi-Switch 216004 ##
+
+Uses an SMC 3603 encoder, which seems to be the same as the KR3600.
+
+### Connections ###
+
+Has an 18-pin edge connector.
+
+| Pin | Signal        | AVR |
+|-----|---------------|-----|
+| A   | K44 (BRK)     | D1  |
+| B   | K44 (BRK)     | GND |
+| C   | K14 (HERE IS) | D2  |
+| D   | K14 (HERE IS) | GND |
+| E   | REPT ENABLE   |     |
+| F   | STROBE        | D0  |
+| H   | B9            | *   |
+| J   | B7            | B6  |
+| K   | B6            | B5* |
+| L   | B5            | B4  |
+| M   | B4            | B3  |
+| N   | B3            | B2  |
+| P   | B2            | B1  |
+| R   | B1            | B0  |
+| S   | VCC           | VCC |
+| T   | VDD           | GND |
+| U   |               |     |
+| V   |               |     |
+
+A SPDT switch can be installed to select between encoder `B9` and `B6` for output `B5` allows choosing between uppercase-only and upper- and lowercase.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+```
