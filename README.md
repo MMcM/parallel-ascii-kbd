@@ -143,6 +143,44 @@ Additional signals on this board not needed here:
 PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF
 ```
 
+## Micro Switch SD-16534 ##
+
+This PCB is used at least on 91SD30-3, which seems to be part of a Honeywell terminal.
+
+Connection to the keyboard is through a DB-25 (with a special cable not all of whose signals are connected, though there would be no harm if they were).
+
+### Connections ###
+
+Needed for this:
+
+| IDC | Signal              | AVR |
+|-----|---------------------|-----|
+|6,7,8|
+|9    | GND                 | GND |
+|10,11|
+|12,13| +5V                 | +5V |
+|     |                     |     |
+|  4  | STROBE              | PD0 |
+| 19  | CHAR BIT 1          | PB0 |
+| 20  | CHAR BIT 2          | PB1 |
+| 18  | CHAR BIT 3          | PB2 |
+| 17  | CHAR BIT 4          | PB3 |
+| 16  | CHAR BIT 5          | PB4 |
+| 15  | CHAR BIT 6          | PB5 |
+| 14  | CHAR BIT 7          | PB6 |
+| 23  | CHAR BIT 8          | PB7 |
+| 21  | /DATA SET READY     | PC7 |
+
+Note that the two low bits are reversed from what one might expect.
+
+The DSR line can just be wired low. If connected to `PC7` and `READY_STATE` is defined as `READY_LOW`, it will be turned on as part of initialization, which causes the keyboard to send some kind of identification sequence.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCHAR_MASK=0xFF -DREADY_STATE=READY_LOW
+```
+
 ## Digital LK01 ##
 
 This is the main keyboard inside the VT05 display terminal and the LA32 printing terminal.
