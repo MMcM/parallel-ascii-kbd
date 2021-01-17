@@ -75,8 +75,19 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 #define CHAR_MASK 0x7F
 #endif
 
+#ifndef PARITY_CHECK
+#define PARITY_CHECK PARITY_NONE
+#endif
+#define PARITY_NONE -1
+#define PARITY_EVEN 0
+#define PARITY_ODD 1
+
 #ifndef CHAR_PULLUP_MASK
+#if PARITY_CHECK == PARITY_NONE
 #define CHAR_PULLUP_MASK CHAR_MASK
+#else
+#define CHAR_PULLUP_MASK 0xFF
+#endif
 #endif
 
 #define CONTROL_PORT PORTD
@@ -185,7 +196,24 @@ static void Parallel_Kbd_Task(void)
 
   while (!QueueIsEmpty()) {
     entry = QueueRemove();
-    CDC_Device_SendByte(&VirtualSerial_CDC_Interface, entry.charCode);
+
+    uint8_t charCode = entry.charCode;
+#if PARITY_CHECK != PARITY_NONE
+    uint8_t parity = 0;
+    for (uint8_t i = 0; i < 8; i++) {
+      if ((charCode & (1 << i)) != 0) {
+        parity ^= 1;
+      }
+    }
+    if (parity != PARITY_CHECK) {
+      continue;
+    }
+#endif
+#ifdef CHAR_INVERT
+    charCode = ~charCode;
+#endif
+    charCode &= CHAR_MASK;
+    CDC_Device_SendByte(&VirtualSerial_CDC_Interface, charCode);
   }
 }
 
@@ -195,11 +223,7 @@ ISR(INT0_vect)
 {
   queue_entry_t entry;
 
-  entry.charCode =
-#ifdef CHAR_INVERT
-    ~
-#endif
-    CHAR_PIN & CHAR_MASK;
+  entry.charCode = CHAR_PIN;
 #if CONTROL_NSHIFTS > 0
   entry.shifts = (~CONTROL_PIN & CONTROL_SHIFTS_MASK) >> CONTROL_SHIFTS_SHIFT;
 #endif

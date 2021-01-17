@@ -181,6 +181,40 @@ The DSR line can just be wired low. If connected to `PC7` and `READY_STATE` is d
 PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCHAR_MASK=0xFF -DREADY_STATE=READY_LOW
 ```
 
+## Micro Switch SC-15142 ##
+
+This PCB is used at least on 63ST13-1, which seems to be part of a printing terminal, with firmware SD-03041.
+
+Connection to the keyboard is through a 20-pin IDC shrouded header.
+
+### Connections ###
+
+| IDC | Signal              | AVR |
+|-----|---------------------|-----|
+|  1  | DEBOUNCE(?)         | PD3 |
+|  4  | CHAR PARITY BIT     | PB7 |
+|  5  | /BRK                | PD2 |
+|  6  | INPUT(?)            | PC7 |
+|  7  | /HERE IS            | PD1 |
+|  8  | CHAR BIT 1          | PB0 |
+| 10  | CHAR BIT 2          | PB1 |
+| 11  | STROBE              | PD0 |
+| 12  | CHAR BIT 3          | PB2 |
+|13,15| +5V                 | +5V |
+|14,16| GROUND              | GND |
+| 17  | CHAR BIT 7          | PB6 |
+| 18  | CHAR BIT 4          | PB3 |
+| 19  | CHAR BIT 6          | PB5 |
+| 20  | CHAR BIT 5          | PB4 |
+
+The `HERE IS` and `BRK` bits change without triggering a strobe pulse. The remaining extra bit seems to change several times for each key press.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCONTROL_NSHIFTS=3 -DPARITY_CHECK=PARITY_ODD
+```
+
 ## Digital LK01 ##
 
 This is the main keyboard inside the VT05 display terminal and the LA32 printing terminal.
