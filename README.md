@@ -487,3 +487,38 @@ Output is via a 16-pin DIP (`J1`) and an 18-pin edge connector (`P1`).
 ```
 PARALLEL_KBD_OPTS = 
 ```
+
+## TEC EKA-9100 ##
+
+([Schematic](https://archive.org/details/bitsavers_tec9650100awingsSep1974_20767226/page/n34/mode/1up)).
+There is no program logic on this board: it is all done with 74-series TTL.
+
+The keyboard connects via a DC-37 d-sub connector, with only 17 (16 distinct) signals.
+
+### Connections ###
+
+| DC | Signal      | AVR |
+|----|-------------|-----|
+|  1 | +5V         | VCC |
+|  2 | +5V         | VCC |
+|  6 | /KBDACK     | PC7 |
+| 11 | DATA 1      | PB0 |
+| 12 | DATA 2      | PB1 |
+| 13 | DATA 3      | PB2 |
+| 14 | DATA 4      | PB3 |
+| 15 | DATA 5      | PB4 |
+| 16 | DATA 6      | PB5 |
+| 17 | DATA 7      | PB6 |
+| 18 | /STROBE     | PD0 |
+| 19 | /CLRSCN     | PD1 |
+| 26 | /BELL       | PC6 |
+| 27 | /BREAK      | PD2 |
+| 31 | GND         | GND |
+| 33 | CHASSIS GND |     |
+| 36 | GND         | GND |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = 
+```
