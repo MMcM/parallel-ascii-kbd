@@ -28,6 +28,8 @@ The board needs a lot of GPIO pins, particularly all of PORTB, so an actual Ardu
 
 ### Connections ###
 
+Required:
+
 | Signal              | AVR |
 |---------------------|-----|
 | STROBE              | PD0 |
@@ -39,7 +41,23 @@ The board needs a lot of GPIO pins, particularly all of PORTB, so an actual Ardu
 | CHAR BIT 6          | PB5 |
 | CHAR BIT 7          | PB6 |
 
-The rest of port D is read for direct keys, but these don't do anything currently.
+Optional:
+
+| Signal              | AVR |
+|---------------------|-----|
+| DIRECT KEY 1        | PD1 |
+| DIRECT KEY 2        | PD2 |
+| ...                 |     |
+| DIRECT KEY 7        | PD7 |
+| DIRECT KEY 8        | PF0 |
+| DIRECT KEY 9        | PF1 |
+| ...                 |     |
+| BELL                | PC6 |
+| READY ACK           | PC7 |
+
+The rest of port D is read for direct keys. Currently the only supported actions for these are `HERE IS`, which sends the answerback sdtring, and `BREAK`, which does serial break.
+
+There are two optional signals in the to-keyboard direction. `C6` is a bell, either a speaker / transducer directly or something with a trigger signal. `C7` is a ready / ack line, which can be used to time a `REPEAT` key or to let the keyboard track serial `DTR`.
 
 ## Micro Switch SW-11234 ##
 
@@ -70,10 +88,10 @@ seems to work fine.
 | 2   | -12V                |     |
 | 3   | +5V                 | +5V |
 | 4   | GND                 | GND |
-| 10  | CONTROL             | PD3 |
-| 12  | SHIFT 	            | PD1 |
+| 10  | /CONTROL            | PD3 |
+| 12  | /SHIFT              | PD1 |
 |     |                     |     |
-| A   | STROBE              | PD0 |
+| A   | /STROBE             | PD0 |
 | C   | +5V                 | +5V |
 | D   | GND                 | GND |
 | F   | CHAR BIT 2          | PB1 |
@@ -87,7 +105,8 @@ seems to work fine.
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCONTROL_NSHIFTS=2
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-11234 Keyboard\"" \
+  -DDIRECT_KEYS=3 -DDIRECT_PORT_UNUSED=4 -DDIRECT_INVERT_MASK=5
 ```
 
 ## Micro Switch SD-16234 ##
@@ -107,7 +126,7 @@ Needed for this:
 |33,34|
 |19,20| +5V                 | +5V |
 |     |                     |     |
-| 22  | STROBE              | PD0 |
+| 22  | /STROBE             | PD0 |
 | 10  | CHAR BIT 1          | PB0 |
 |  8  | CHAR BIT 2          | PB1 |
 |  7  | CHAR BIT 3          | PB2 |
@@ -139,7 +158,7 @@ Additional signals on this board not needed here:
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16234 Keyboard\"" -DCHAR_MASK=0xFF
 ```
 
 ## Micro Switch SD-16534 ##
@@ -172,12 +191,14 @@ Needed for this:
 
 Note that the two low bits are reversed from what one might expect.
 
-The DSR line can just be wired low. If connected to `PC7` and `READY_STATE` is defined as `READY_LOW`, it will be turned on as part of initialization, which causes the keyboard to send some kind of identification sequence.
+The DSR line can just be wired low. If connected to `PC7` and `READY_ACK_MODE` is defined as `READY_ACK_MODE_DTR`, it will be turned on as part of initialization, which causes the keyboard to send some kind of identification sequence.
 
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCHAR_MASK=0xFF -DREADY_STATE=READY_LOW
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16534 Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCHAR_MASK=0xFF \
+  -DREADY_ACK_MODE=READY_ACK_MODE_DTR -DREADY_ACK_ON_STATE=READY_ACK_ON_LOW
 ```
 
 ## Micro Switch SC-15142 ##
@@ -206,12 +227,15 @@ Connection to the keyboard is through a 20-pin IDC shrouded header.
 | 19  | CHAR BIT 6          | PB5 |
 | 20  | CHAR BIT 5          | PB4 |
 
-The `HERE IS` and `BRK` bits change without triggering a strobe pulse. The remaining extra bit seems to change several times for each key press.
+The third direct signal seems to change several times for each key press.
 
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCONTROL_NSHIFTS=3 -DPARITY_CHECK=PARITY_ODD
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SC-15142 Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DPARITY_CHECK=PARITY_ODD \
+  -DDIRECT_KEYS=3 -DDIRECT_INVERT_MASK=7 -DENABLE_SOF_EVENTS -DDIRECT_DEBOUNCE=5 \
+  -DDIRECT_KEY_1=DIRECT_HERE_IS -DDIRECT_KEY_2=DIRECT_BREAK
 ```
 
 ## Digital LK01 ##
@@ -251,7 +275,7 @@ The schematic for a similar keyboard is page 13/19 of [LK40 Engineeering Drawing
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"LK01 Keyboard\"" -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
 ```
 
 ## Consul 262.3 ##
@@ -282,7 +306,7 @@ Some scanned pages of documentation are in the [Wiki](https://github.com/MMcM/pa
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF -DCHAR_INVERT
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Consol 262.3 Keyboard\"" -DCHAR_MASK=0xFF -DCHAR_INVERT
 ```
 
 ## Beehive B100 ##
@@ -312,7 +336,7 @@ The keyboard interface is described in the [Beehive B100 Computer Terminal - Mai
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS =
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Beehive B100 Keyboard\""
 ```
 
 ## Amkey SNK-58 ##
@@ -344,7 +368,7 @@ The keyed side has, after the missing pin, the strobe signal (idle high), then e
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCHAR_MASK=0xFF
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Amkey SNK-58 Keyboard\"" -DCHAR_MASK=0xFF
 ```
 
 ## Apple II / II Plus ##
@@ -386,7 +410,7 @@ The encoder also needs -12VDC, but not with very much current, so a cheap conver
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Apple II Keyboard\"" -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
 ```
 
 ### Apple 1 ###
@@ -415,6 +439,10 @@ The original Apple also connected to the keyboard with a 16 pin DIP (`B4`) and w
 Examples:
 
 * Early Datanetics keyboards (see [notes](https://www.applefritter.com/node/2809) they took from Apple).
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Apple I Keyboard\"" -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+```
 
 ## Maxi-Switch 216004 ##
 
@@ -450,7 +478,10 @@ A SPDT switch can be installed to select between encoder `B9` and `B6` for outpu
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Maxi-Switch 216004 Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING \
+  -DDIRECT_KEYS=2 -DDIRECT_INVERT_MASK=3 -DDIRECT_DEBOUNCE=5 \
+  -DDIRECT_KEY_1=DIRECT_BREAK -DDIRECT_KEY_2=DIRECT_HERE_IS
 ```
 
 ## Jameco JE610 ##
@@ -485,7 +516,8 @@ Output is via a 16-pin DIP (`J1`) and an 18-pin edge connector (`P1`).
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = 
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"JE610 Keyboard\"" \
+  -DDIRECT_KEYS=2 -DENABLE_SOF_EVENTS -DDIRECT_DEBOUNCE=5
 ```
 
 ## TEC EKA-9100 ##
@@ -493,7 +525,7 @@ PARALLEL_KBD_OPTS =
 ([Schematic](https://archive.org/details/bitsavers_tec9650100awingsSep1974_20767226/page/n34/mode/1up)).
 There is no program logic on this board: it is all done with 74-series TTL.
 
-The keyboard connects via a DC-37 d-sub connector, with only 17 (16 distinct) signals.
+The keyboard connects via a DC-37 d-sub connector, with only 17 (15 distinct) signals.
 
 ### Connections ###
 
@@ -520,5 +552,9 @@ The keyboard connects via a DC-37 d-sub connector, with only 17 (16 distinct) si
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = 
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"TEC EKA Keyboard\"" \
+  -DBELL_MODE=BELL_MODE_LOW \
+  -DREADY_ACK_MODE=READY_ACK_MODE_KEY_ACK -DREADY_ACK_ON_STATE=READY_ACK_ON_LOW -DREADY_ACK_DELAY_MSEC=250 -DENABLE_SOF_EVENTS \
+  -DDIRECT_KEYS=2 -DDIRECT_INVERT_MASK=3 -DDIRECT_DEBOUNCE=5 \
+  -DDIRECT_KEY_1=DIRECT_HERE_IS -DDIRECT_KEY_2=DIRECT_BREAK
 ```

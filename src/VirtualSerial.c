@@ -68,170 +68,8 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
       },
   };
 
-#define CHAR_PORT PORTB
-#define CHAR_PIN PINB
-
-#ifndef CHAR_MASK
-#define CHAR_MASK 0x7F
-#endif
-
-#ifndef PARITY_CHECK
-#define PARITY_CHECK PARITY_NONE
-#endif
-#define PARITY_NONE -1
-#define PARITY_EVEN 0
-#define PARITY_ODD 1
-
-#ifndef CHAR_PULLUP_MASK
-#if PARITY_CHECK == PARITY_NONE
-#define CHAR_PULLUP_MASK CHAR_MASK
-#else
-#define CHAR_PULLUP_MASK 0xFF
-#endif
-#endif
-
-#define CONTROL_PORT PORTD
-#define CONTROL_PIN PIND
-#define CONTROL_DDR DDRD
-#define CONTROL_STROBE (1 << 0)
-#define CONTROL_STROBE_INTERRUPT (1 << INT0)
-#ifndef CONTROL_STROBE_TRIGGER
-#define CONTROL_STROBE_TRIGGER TRIGGER_FALLING
-#endif
-#define TRIGGER_FALLING (1 << ISC01)
-#define TRIGGER_RISING ((1 << ISC01) | (1 << ISC00))
-#ifndef CONTROL_NSHIFTS
-#define CONTROL_NSHIFTS 0
-#endif
-#if CONTROL_NSHIFTS > 0
-#define CONTROL_SHIFTS_SHIFT 1
-#define CONTROL_SHIFTS_MASK (((1<<CONTROL_SHIFTS_SHIFT) - 1) << CONTROL_SHIFTS_SHIFT)
-#endif
-
-#ifdef READY_STATE
-#define READY_PORT PORTC
-#define READY_DDR DDRC
-#define READY_MASK (1 << 7)
-#define READY_HIGH true
-#define READY_LOW false
-#if READY_STATE == READY_HIGH
-#define READY_ON READY_PORT |= READY_MASK
-#else
-#define READY_ON READY_PORT &= ~READY_MASK
-#endif
-#endif
-
-/*** Character Queue ***/
-
-typedef struct {
-  uint8_t charCode;
-#if CONTROL_NSHIFTS > 0
-  uint8_t shifts;
-#endif
-} queue_entry_t;
-#define QUEUE_SIZE 16
-static queue_entry_t CharQueue[QUEUE_SIZE];
-static uint8_t CharQueueIn, CharQueueOut;
-
-static inline void QueueClear(void)
-{
-  CharQueueIn = CharQueueOut = 0;
-}
-
-static inline bool QueueIsEmpty(void)
-{
-  return (CharQueueIn == CharQueueOut);
-}
-
-static inline bool QueueIsFull(void)
-{
-  // One entry wasted to be able to check this easily.
-  return (((CharQueueIn + 1) % QUEUE_SIZE) == CharQueueOut);
-}
-
-static inline queue_entry_t QueueRemove(void)
-{
-  queue_entry_t entry = CharQueue[CharQueueOut];
-  CharQueueOut = (CharQueueOut + 1) % QUEUE_SIZE;
-  return entry;
-}
-
-static inline void QueueAdd(queue_entry_t entry)
-{
-  CharQueue[CharQueueIn] = entry;
-  CharQueueIn = (CharQueueIn + 1) % QUEUE_SIZE;
-}
-
-/*** Keyboard Interface ***/
-
-static void Parallel_Kbd_Init(void)
-{
-  QueueClear();
-
-  // Enable pullups.
-  CHAR_PORT |= CHAR_PULLUP_MASK;
-  CONTROL_PORT |= CONTROL_STROBE
-#if CONTROL_NSHIFTS > 0
-    | CONTROL_SHIFTS_MASK
-#endif
-    ;
-
-  // Interrupt 0 on trigger edge of STROBE
-  EIMSK |= CONTROL_STROBE_INTERRUPT;
-  EICRA |= CONTROL_STROBE_TRIGGER;
-
-#ifdef READY_STATE
-  READY_DDR |= READY_MASK;
-  READY_ON;
-#endif
-}
-
-static void Parallel_Kbd_Task(void)
-{
-  queue_entry_t entry;
-  
-  // NOTE: If simulating a full keyboard and not a 7-bit serial port, it
-  // would be possible to use the shift and ctrl bits to reconstruct more
-  // of the key state.
-
-  while (!QueueIsEmpty()) {
-    entry = QueueRemove();
-
-    uint8_t charCode = entry.charCode;
-#if PARITY_CHECK != PARITY_NONE
-    uint8_t parity = 0;
-    for (uint8_t i = 0; i < 8; i++) {
-      if ((charCode & (1 << i)) != 0) {
-        parity ^= 1;
-      }
-    }
-    if (parity != PARITY_CHECK) {
-      continue;
-    }
-#endif
-#ifdef CHAR_INVERT
-    charCode = ~charCode;
-#endif
-    charCode &= CHAR_MASK;
-    CDC_Device_SendByte(&VirtualSerial_CDC_Interface, charCode);
-  }
-}
-
-/*** Interrupt Handler ***/
-
-ISR(INT0_vect)
-{
-  queue_entry_t entry;
-
-  entry.charCode = CHAR_PIN;
-#if CONTROL_NSHIFTS > 0
-  entry.shifts = (~CONTROL_PIN & CONTROL_SHIFTS_MASK) >> CONTROL_SHIFTS_SHIFT;
-#endif
-
-  if (!QueueIsFull()) {
-    QueueAdd(entry);
-  }
-}
+extern void Parallel_Kbd_Init(void);
+extern void Parallel_Kbd_Task(void);
 
 /** Main program entry point. This routine contains the overall program flow, including initial
  *  setup of all components and the main program loop.
@@ -246,9 +84,6 @@ int main(void)
   for (;;)
   {
     Parallel_Kbd_Task();
-
-    /* Must throw away unused bytes from the host, or it will lock up while waiting for the device */
-    CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
 
     CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
     USB_USBTask();
@@ -301,6 +136,10 @@ void EVENT_USB_Device_ConfigurationChanged(void)
   bool ConfigSuccess = true;
 
   ConfigSuccess &= CDC_Device_ConfigureEndpoints(&VirtualSerial_CDC_Interface);
+
+#ifdef ENABLE_SOF_EVENTS
+  USB_Device_EnableSOFEvents();
+#endif
 
   LEDs_SetAllLEDs(ConfigSuccess ? LEDMASK_USB_READY : LEDMASK_USB_ERROR);
 }
