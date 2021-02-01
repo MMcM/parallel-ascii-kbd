@@ -558,3 +558,55 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"TEC EKA Keyboard\"" \
   -DDIRECT_KEYS=2 -DDIRECT_INVERT_MASK=3 -DDIRECT_DEBOUNCE=5 \
   -DDIRECT_KEY_1=DIRECT_HERE_IS -DDIRECT_KEY_2=DIRECT_BREAK
 ```
+
+## Scientific Devices ##
+
+This keyboard has no model number, although very similar looking ones are labeled KBMO two, suggesting that this might be KBMO one.
+See, for instance, [here](http://www.vcfed.org/forum/showthread.php?68827-Are-these-parallel-ASCII&p=567157#post567157) and
+[here](http://retro.hansotten.nl/kim-1-rev-b-ceramic-cpu-ascii-display-ascii-keyboard-brutech-4k-ram/).
+
+Has an 24-pin edge connector, which is numbered 1-12 and 13-24 rather than A-N.
+
+There are 7 LEDs lit directly by the data output signals. They therefore show the (LSB left, inverted) ASCII character while the key is help down.
+
+Needs -12V for the CMOS keyboard decoder.
+
+### Connections ###
+
+| Pin | Signal                            | AVR |
+|-----|-----------------------------------|-----|
+|  1  | -12V                              | VCC |
+|  2  | DATA 1                            | PB0 |
+|  3  | DATA 2                            | PB1 |
+|  4  | DATA 3                            | PB2 |
+|  5  | DATA 4                            | PB3 |
+|  6  | DATA 5                            | PB4 |
+|  7  | DATA 6                            | PB5 |
+|  8  | DATA 7                            | PB6 |
+|  9  | DIRECT 12 (R4 right, HERE IS)     | PF4 |
+| 10  | DIRECT 13 (R3 right)              | PF5 |
+| 11  | DIRECT 14 (R2 right)              | PF6 |
+| 12  | DIRECT 15 (R1 right, BREAK)       | PF7 |
+| 13  | /STROBE                           | PD0 |
+| 14  | STROBE                            |     |
+| 15  | GND                               | GND |
+| 16  | +5V                               | VCC |
+| 17  | GND                               | GND |
+| 18  | GND                               | GND |
+| 19  | DIRECT 1 (R1 second right, CLEAR) | PD1 |
+| 20  | DIRECT 2 (R2 second right)        | PD2 |
+| 21  | DIRECT 3 (R3 third right, RETURN) | PD3 |
+| 22  | DIRECT 4 (R3 second right)        | PD4 |
+| 23  | DIRECT 5 (R4 second right)        | PD5 |
+| 24  | DIRECT 7 (R1 left)                | PD7 |
+
+On this board, the trace for pin 21 has been cut and wires added so that that switch decodes from the matrix as ASCII `CR`.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Scientific Devices Keyboard\"" \
+  -DDIRECT_KEYS=15 -DDIRECT_INVERT_MASK=0x7FFF -DENABLE_SOF_EVENTS -DDIRECT_DEBOUNCE=5 \
+  -DDIRECT_KEY_12=DIRECT_HERE_IS -DDIRECT_KEY_15=DIRECT_BREAK \
+  -DDIRECT_KEY_1=DIRECT_ANSWERBACK_2 -DANSWERBACK_2="\"Goodbye\\r\\n\""
+```
