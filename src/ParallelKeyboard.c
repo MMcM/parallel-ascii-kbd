@@ -249,9 +249,10 @@ static inline char HexDigit(uint8_t i) {
 
 static void CharAction(uint8_t charCode)
 {
-  char str[] = "00\r\n";
+  char str[] = "00 ?\r\n";
   str[0] = HexDigit(charCode >> 4);
   str[1] = HexDigit(charCode & 0x0F);
+  str[3] = charCode >= ' ' && charCode <= '~' ? charCode : ' ';
   CDC_Device_SendString(&VirtualSerial_CDC_Interface, str);
 }
 
@@ -265,6 +266,17 @@ static inline void CharAction(uint8_t charCode)
 #endif
 
 #if DIRECT_KEYS > 0
+
+#if defined(DIRECT_KEY_1) && DIRECT_KEY_1 == DIRECT_ESC_PREFIX
+#define DIRECT_ESC_PREFIX_MASK (1 << 0)
+#elif defined(DIRECT_KEY_2) && DIRECT_KEY_2 == DIRECT_ESC_PREFIX
+#define DIRECT_ESC_PREFIX_MASK (1 << 1)
+#elif defined(DIRECT_KEY_3) && DIRECT_KEY_3 == DIRECT_ESC_PREFIX
+#define DIRECT_ESC_PREFIX_MASK (1 << 2)
+#elif defined(DIRECT_KEY_4) && DIRECT_KEY_4 == DIRECT_ESC_PREFIX
+#define DIRECT_ESC_PREFIX_MASK (1 << 3)
+#endif
+
 #ifdef DEBUG_ACTIONS
 
 static void DirectKeyAction(uint8_t key, bool pressed)
@@ -276,9 +288,35 @@ static void DirectKeyAction(uint8_t key, bool pressed)
   CDC_Device_SendString(&VirtualSerial_CDC_Interface, str);
 }
 
+#ifdef DIRECT_ESC_PREFIX_MASK
+static void CharEscPrefixAction(uint8_t charCode)
+{
+  char str[] = "00 ESC ?\r\n";
+  str[0] = HexDigit(charCode >> 4);
+  str[1] = HexDigit(charCode & 0x0F);
+  str[7] = charCode;
+  CDC_Device_SendString(&VirtualSerial_CDC_Interface, str);
+}
+#endif
+
 #else
 
 typedef void (*direct_action_t)(uint8_t key, bool pressed);
+
+static void DirectBreakAction(uint8_t key, bool pressed)
+{
+  // There is no CDC_Device_SendBreak and the OS driver does not really do anything with this state notification.
+  if (pressed) {
+    LEDs_SetAllLEDs(LEDS_ALL_LEDS);
+    VirtualSerial_CDC_Interface.State.ControlLineStates.DeviceToHost |= CDC_CONTROL_LINE_IN_BREAK;
+  } else {
+    VirtualSerial_CDC_Interface.State.ControlLineStates.DeviceToHost &= ~CDC_CONTROL_LINE_IN_BREAK;
+    LEDs_SetAllLEDs(LEDS_NO_LEDS);
+  }
+  CDC_Device_SendControlLineStateChange(&VirtualSerial_CDC_Interface);
+}
+
+#define DIRECT_BREAK DirectBreakAction
 
 static void DirectAnswerbackAction(uint8_t key, bool pressed)
 {
@@ -287,19 +325,7 @@ static void DirectAnswerbackAction(uint8_t key, bool pressed)
   }
 }
 
-static void DirectBreakAction(uint8_t key, bool pressed)
-{
-  // There is no CDC_Device_SendBreak.
-  if (pressed) {
-    VirtualSerial_CDC_Interface.State.ControlLineStates.DeviceToHost |= CDC_CONTROL_LINE_IN_BREAK;
-  } else {
-    VirtualSerial_CDC_Interface.State.ControlLineStates.DeviceToHost &= ~CDC_CONTROL_LINE_IN_BREAK;
-  }
-  CDC_Device_SendControlLineStateChange(&VirtualSerial_CDC_Interface);
-}
-
 #define DIRECT_HERE_IS DirectAnswerbackAction
-#define DIRECT_BREAK DirectBreakAction
 
 #ifdef ANSWERBACK_2
 static void DirectAnswerback2Action(uint8_t key, bool pressed)
@@ -321,6 +347,26 @@ static void DirectAnswerback3Action(uint8_t key, bool pressed)
   }
 }
 #define DIRECT_ANSWERBACK_3 DirectAnswerback3Action
+#endif
+
+static void DirectEscPrefixAction(uint8_t key, bool pressed)
+{
+}
+
+#define DIRECT_ESC_PREFIX DirectEscPrefixAction
+
+#ifdef DIRECT_ESC_PREFIX_MASK
+static void CharEscPrefixAction(uint8_t charCode)
+{
+  uint8_t esc[3];
+  uint8_t i = 0;
+  esc[i++] = '\e';
+#ifdef DIRECT_ESC_PREFIX_VT100
+  esc[i++] = '[';
+#endif
+  esc[i++] = charCode;
+  CDC_Device_SendData(&VirtualSerial_CDC_Interface, esc, i);
+}
 #endif
 
 static const direct_action_t direct_actions[DIRECT_KEYS+1] PROGMEM = {
@@ -458,6 +504,20 @@ static bool ReadDirectKeysDebounce(direct_keys_t *ret)
   return false;
 }
 #endif
+
+static void UpdateDirectKeys(direct_keys_t directKeysNext)
+{
+  static direct_keys_t directKeysPrev = 0;
+  if (directKeysPrev != directKeysNext) {
+    direct_keys_t directKeysDiff = directKeysPrev ^ directKeysNext;
+    for (uint8_t i = 0; i < DIRECT_KEYS; i++) {
+      if (directKeysDiff & (1 << i)) {
+        DirectKeyAction(i + 1, (directKeysNext & (1 << i)) != 0);
+      }
+    }
+    directKeysPrev = directKeysNext;
+  }
+}
 #endif
 
 /*** Keyboard Interface ***/
@@ -510,6 +570,9 @@ void Parallel_Kbd_Task(void)
   bool sent = false;
   while (!QueueIsEmpty()) {
     queue_entry_t entry = QueueRemove();
+#if DIRECT_KEYS > 0
+    UpdateDirectKeys(entry.directKeys);
+#endif
     uint8_t charCode = entry.charCode;
 #if PARITY_CHECK != PARITY_NONE
     uint8_t parity = 0;
@@ -526,6 +589,11 @@ void Parallel_Kbd_Task(void)
     charCode = ~charCode;
 #endif
     charCode &= CHAR_MASK;
+#ifdef DIRECT_ESC_PREFIX_MASK
+    if ((entry.directKeys & DIRECT_ESC_PREFIX_MASK) != 0)
+      CharEscPrefixAction(charCode);
+    else
+#endif
     CharAction(charCode);
     sent = true;
   }
@@ -553,16 +621,9 @@ void Parallel_Kbd_Task(void)
 
 #if DIRECT_KEYS > 0
   // Check direct keys
-  static direct_keys_t directKeysPrev = 0;
   direct_keys_t directKeysNext;
-  if (ReadDirectKeysDebounce(&directKeysNext) && directKeysPrev != directKeysNext) {
-    direct_keys_t directKeysDiff = directKeysPrev ^ directKeysNext;
-    for (uint8_t i = 0; i < DIRECT_KEYS; i++) {
-      if (directKeysDiff & (1 << i)) {
-        DirectKeyAction(i + 1, (directKeysNext & (1 << i)) != 0);
-      }
-    }
-    directKeysPrev = directKeysNext;
+  if (ReadDirectKeysDebounce(&directKeysNext)) {
+    UpdateDirectKeys(directKeysNext);
   }
 #endif
 }

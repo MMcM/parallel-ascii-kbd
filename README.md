@@ -317,10 +317,9 @@ The keyboard interface is described in the [Beehive B100 Computer Terminal - Mai
 
 | DIP | Signal        | AVR |
 |-----|---------------|-----|
-| 1,9 | +5V           | 5V  |
+| 1,9 | +5V           | VCC |
 |11,18| GND           | GND |
 |     |               |     |
-| 15  | /KEYSTROBE    | PD0 |
 |  8  | KB IN 1       | PB0 |
 |  7  | KB IN 2       | PB1 |
 |  6  | KB IN 3       | PB2 |
@@ -329,14 +328,26 @@ The keyboard interface is described in the [Beehive B100 Computer Terminal - Mai
 |  3  | KB IN 6       | PB5 |
 |  2  | KB IN 7       | PB6 |
 |     |               |     |
-| 12  | /BREAK EN     |     |
-| 13  | /RESET        |     |
-| 14  | /INTERNAL OPN |     |
+| 15  | /KEYSTROBE    | PD0 |
+| 14  | /INTERNAL OPN | PD1 |
+| 12  | /BREAK EN     | PD2 |
+| 10  | /INSERT MODE  | PD3 |
+| 17  | /AUX EN       | PD4 |
+| 16  | /AUX ONL      | PD5 |
+| 13  | /RESET        | PD7 |
+
+* `INTERNAL OPN` is on in conjunction with the arrow and other navigation keys, which send the VT52 `ESC` code.
+* `BREAK` is on for a set period, around 1/4 sec, no matter how long it is held down.
+* The three keys above `ALPHA LOCK` toggle mode LEDs underneath and the next three signals, whether or not the optional window key caps, `INST CHAR`, `AUX ENBL`, `AUX ONLN`, are present.
+* `RESET` is triggered by pressing `CTRL`, `SHIFT`, and `CLEAR HOME` together.
 
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DKEYBOARD="\"Beehive B100 Keyboard\""
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Beehive B100 Keyboard\"" \
+  -DDIRECT_KEYS=7 -DDIRECT_INVERT_MASK=0x5F \
+  -DDIRECT_KEY_1=DIRECT_ESC_PREFIX -DDIRECT_ESC_PREFIX_VT100 \
+  -DDIRECT_KEY_2=DIRECT_BREAK
 ```
 
 ## Amkey SNK-58 ##
@@ -410,7 +421,10 @@ The encoder also needs -12VDC, but not with very much current, so a cheap conver
 ### Build ###
 
 ```
-PARALLEL_KBD_OPTS = -DKEYBOARD="\"Apple II Keyboard\"" -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Apple II Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING \
+  -DDIRECT_KEYS=1 -DDIRECT_INVERT_MASK=1 -DDIRECT_DEBOUNCE=5 -DENABLE_SOF_EVENTS \
+  -DDIRECT_KEY_1=DIRECT_BREAK
 ```
 
 ### Apple 1 ###
@@ -441,7 +455,10 @@ Examples:
 * Early Datanetics keyboards (see [notes](https://www.applefritter.com/node/2809) they took from Apple).
 
 ```
-PARALLEL_KBD_OPTS = -DKEYBOARD="\"Apple I Keyboard\"" -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Apple I Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING \
+  -DDIRECT_KEYS=2 -DDIRECT_INVERT_MASK=1 -DDIRECT_DEBOUNCE=5 -DENABLE_SOF_EVENTS \
+  -DDIRECT_KEY_1=DIRECT_BREAK -DDIRECT_KEY_2=DIRECT_HERE_IS
 ```
 
 ## Maxi-Switch 216004 ##
@@ -480,13 +497,13 @@ A SPDT switch can be installed to select between encoder `B9` and `B6` for outpu
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"Maxi-Switch 216004 Keyboard\"" \
   -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING \
-  -DDIRECT_KEYS=2 -DDIRECT_INVERT_MASK=3 -DDIRECT_DEBOUNCE=5 \
+  -DDIRECT_KEYS=2 -DDIRECT_INVERT_MASK=3 -DENABLE_SOF_EVENTS -DDIRECT_DEBOUNCE=5 \
   -DDIRECT_KEY_1=DIRECT_BREAK -DDIRECT_KEY_2=DIRECT_HERE_IS
 ```
 
 ## Jameco JE610 ##
 
-Another keyboard popular with early hobbyists.
+Another keyboard sold to early hobbyists.
 ([Datasheet](http://www.bitsavers.org/pdf/jameco/Jameco_JE_610_ASCII_Keyboard_Datasheet.pdf)).
 It uses the GI AY-5-2376 encoder.
 
@@ -517,7 +534,9 @@ Output is via a 16-pin DIP (`J1`) and an 18-pin edge connector (`P1`).
 
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"JE610 Keyboard\"" \
-  -DDIRECT_KEYS=2 -DENABLE_SOF_EVENTS -DDIRECT_DEBOUNCE=5
+  -DDIRECT_KEYS=2 -DENABLE_SOF_EVENTS -DDIRECT_DEBOUNCE=5 \
+  -DDIRECT_KEY_1=DIRECT_ANSWERBACK_2 -DANSWERBACK_2="\"UD1\\r\\n\"" \
+  -DDIRECT_KEY_2=DIRECT_ANSWERBACK_3 -DANSWERBACK_3="\"UD2\\r\\n\""
 ```
 
 ## TEC EKA-9100 ##
