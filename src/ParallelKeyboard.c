@@ -267,16 +267,6 @@ static inline void CharAction(uint8_t charCode)
 
 #if DIRECT_KEYS > 0
 
-#if defined(DIRECT_KEY_1) && DIRECT_KEY_1 == DIRECT_ESC_PREFIX
-#define DIRECT_ESC_PREFIX_MASK (1 << 0)
-#elif defined(DIRECT_KEY_2) && DIRECT_KEY_2 == DIRECT_ESC_PREFIX
-#define DIRECT_ESC_PREFIX_MASK (1 << 1)
-#elif defined(DIRECT_KEY_3) && DIRECT_KEY_3 == DIRECT_ESC_PREFIX
-#define DIRECT_ESC_PREFIX_MASK (1 << 2)
-#elif defined(DIRECT_KEY_4) && DIRECT_KEY_4 == DIRECT_ESC_PREFIX
-#define DIRECT_ESC_PREFIX_MASK (1 << 3)
-#endif
-
 #ifdef DEBUG_ACTIONS
 
 static void DirectKeyAction(uint8_t key, bool pressed)
@@ -348,12 +338,6 @@ static void DirectAnswerback3Action(uint8_t key, bool pressed)
 }
 #define DIRECT_ANSWERBACK_3 DirectAnswerback3Action
 #endif
-
-static void DirectEscPrefixAction(uint8_t key, bool pressed)
-{
-}
-
-#define DIRECT_ESC_PREFIX DirectEscPrefixAction
 
 #ifdef DIRECT_ESC_PREFIX_MASK
 static void CharEscPrefixAction(uint8_t charCode)

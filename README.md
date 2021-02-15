@@ -238,6 +238,44 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SC-15142 Keyboard\"" \
   -DDIRECT_KEY_1=DIRECT_HERE_IS -DDIRECT_KEY_2=DIRECT_BREAK
 ```
 
+## Micro Switch SD-16192 ##
+
+This PCB is used on 78SD12-6, a terminal for the AM International AMText word processor. But many of the key legends do not match the character sent. This could be because it is used elsewhere or just due to the encoder chip.
+
+Has an 20-pin edge connector.
+
+### Connections ###
+
+| IDC | Signal              | AVR |
+|-----|---------------------|-----|
+|  A  | CHAR BIT 0          | PB0 |
+|  B  | CHAR BIT 1          | PB1 |
+|  C  | CHAR BIT 2          | PB2 |
+|  D  | CHAR BIT 3          | PB3 |
+|  E  | CHAR BIT 4          | PB4 |
+|  F  | CHAR BIT 5          | PB5 |
+|  H  | CHAR BIT 6          | PB6 |
+|  J  | CHAR BIT 7          | PB7 |
+|  K  | DIRECT KEY 2        | PD2 |
+|  L  | DIRECT KEY 3        | PD3 |
+|  1  | DIRECT KEY 4        | PD4 |
+|  2  | /STROBE             | PD0 |
+|  3  | STROBE              |     |
+|  4  | -12V                |     |
+|  5  | TEST POINT P5       |     |
+|  6  | DIRECT KEY 1 (RESET)| PD1 |
+| 7,8 | +5V                 | VCC |
+|9,10 | GROUND              | GND |
+
+Most keys are 4B3B, 2.5 oz. sink pulse. The `RESET` key in the lower-left is 4B8B, 8.0 oz., but still a pulse, which is close to synchronized with the `STROBE` pulse. The three keys in the upper-right are 4B3K, timed repeat, so those signals remain on while the key is still pressed. All these direct keys also send a unique character code, so other than auto-repeat there is nothing gained by tracking them separately.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16234 Keyboard\"" -DCHAR_MASK=0xFF \
+  -DDIRECT_KEYS=4 -DDIRECT_INVERT_MASK=0xF -DDIRECT_KEY_1=DIRECT_BREAK
+```
+
 ## Digital LK01 ##
 
 This is the main keyboard inside the VT05 display terminal and the LA32 printing terminal.
@@ -346,7 +384,7 @@ The keyboard interface is described in the [Beehive B100 Computer Terminal - Mai
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"Beehive B100 Keyboard\"" \
   -DDIRECT_KEYS=7 -DDIRECT_INVERT_MASK=0x5F \
-  -DDIRECT_KEY_1=DIRECT_ESC_PREFIX -DDIRECT_ESC_PREFIX_VT100 \
+  -DDIRECT_ESC_PREFIX_MASK=1 -DDIRECT_ESC_PREFIX_VT100 \
   -DDIRECT_KEY_2=DIRECT_BREAK
 ```
 
