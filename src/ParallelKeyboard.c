@@ -121,6 +121,7 @@ static inline direct_keys_t ReadDirectKeys(void)
 
 /*** Bell / buzzer / speaker on C6 for BEL ***/
 
+#define BELL_PIN PINC
 #define BELL_PORT PORTC
 #define BELL_DDR DDRC
 #define BELL_MASK (1 << 6)
@@ -134,10 +135,6 @@ static inline direct_keys_t ReadDirectKeys(void)
 #define BELL_MODE BELL_MODE_NONE
 #endif
 
-#ifndef BELL_DURATION_USEC
-#define BELL_DURATION_USEC 5
-#endif
-
 #if BELL_MODE == BELL_MODE_NONE
 #define BELL_OFF {}
 #define BELL_ON {}
@@ -148,7 +145,61 @@ static inline direct_keys_t ReadDirectKeys(void)
 #define BELL_OFF BELL_PORT &= ~BELL_MASK
 #define BELL_ON BELL_PORT |= BELL_MASK
 #elif BELL_MODE == BELL_MODE_TONE
-#error NIY
+#define BELL_OFF ToneOff()
+#define BELL_ON ToneOn(BELL_TONE_FREQUENCY)
+#endif
+
+#ifndef BELL_DURATION_USEC
+#if BELL_MODE == BELL_MODE_TONE
+// Actual audible interval.
+#define BELL_DURATION_USEC 250000
+#else
+// Just a pulse.
+#define BELL_DURATION_USEC 5
+#endif
+#endif
+
+#if BELL_MODE == BELL_MODE_TONE
+
+// Timer 3, prescaler 8, compare A.
+#define TONE_TIMER_CCRA TCCR3A
+#define TONE_TIMER_CCRB TCCR3B
+#define TONE_TIMER_PRESCALE (1<<CS31)
+#define TONE_TIMER_OCR OCR3A
+#define TONE_TIMER_TCNT TCNT3
+#define TONE_TIMER_IFR TIFR3
+#define TONE_TIMER_MATCH (1<<OCF3A)
+#define TONE_TIMER_MASK TIMSK3
+#define TONE_TIMER_INT (1<<OCIE3A)
+#define TONE_TIMER_VECT TIMER3_COMPA_vect
+
+#ifndef BELL_TONE_FREQUENCY
+#define BELL_TONE_FREQUENCY 200
+#endif
+
+static uint16_t ToneTimerWidth;
+
+ISR(TONE_TIMER_VECT)
+{
+    TONE_TIMER_OCR += ToneTimerWidth;
+    BELL_PIN |= BELL_MASK;      // Toggle.
+}
+
+static inline void ToneOff() {
+  TONE_TIMER_MASK &= ~TONE_TIMER_INT; // Disable interrupt.
+}
+
+static void ToneOn(uint16_t frequency) {
+  ToneOff();                   // Just in case.
+  ToneTimerWidth = (F_CPU / 16 + frequency / 2) / frequency;
+  cli();
+  TONE_TIMER_IFR |= TONE_TIMER_MATCH; // Clear pending.
+  BELL_PORT &= ~BELL_MASK;
+  TONE_TIMER_OCR = TONE_TIMER_TCNT + ToneTimerWidth; // Resync.
+  sei();
+  TONE_TIMER_MASK |= TONE_TIMER_INT; // Enable interrupt.
+}
+
 #endif
 
 /*** Ready / ack / repeat signal on C7 ***/
@@ -528,6 +579,10 @@ void Parallel_Kbd_Init(void)
 #if BELL_MODE != BELL_MODE_NONE
   BELL_DDR |= BELL_MASK;
   BELL_OFF;
+#if BELL_MODE == BELL_MODE_TONE
+  TONE_TIMER_CCRA = 0;
+  TONE_TIMER_CCRB = TONE_TIMER_PRESCALE;
+#endif
 #endif
 
 #if READY_ACK_MODE != READY_ACK_MODE_NONE

@@ -163,7 +163,7 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16234 Keyboard\"" -DCHAR_MASK=0xFF
 
 ## Micro Switch SD-16534 ##
 
-This PCB is used at least on 91SD30-3, which seems to be part of a Honeywell terminal.
+This PCB is used at least on 91SD30-3, which seems to be part of a Honeywell BKBD terminal.
 
 Connection to the keyboard is through a DB-25 (with a special cable not all of whose signals are connected, though there would be no harm if they were).
 
@@ -188,10 +188,13 @@ Needed for this:
 | 14  | CHAR BIT 7          | PB6 |
 | 23  | CHAR BIT 8          | PB7 |
 | 21  | /DATA SET READY     | PC7 |
+|  2  | SPEAKER             | PC6*|
 
 Note that the two low bits are reversed from what one might expect.
 
 The DSR line can just be wired low. If connected to `PC7` and `READY_ACK_MODE` is defined as `READY_ACK_MODE_DTR`, it will be turned on as part of initialization, which causes the keyboard to send some kind of identification sequence.
+
+The speaker connection should have a current-limiting resistor.
 
 ### Build ###
 
@@ -199,6 +202,27 @@ The DSR line can just be wired low. If connected to `PC7` and `READY_ACK_MODE` i
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16534 Keyboard\"" \
   -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCHAR_MASK=0xFF \
   -DREADY_ACK_MODE=READY_ACK_MODE_DTR -DREADY_ACK_ON_STATE=READY_ACK_ON_LOW
+```
+
+### Non-ASCII Variant ###
+
+A very similar PCB, SD-16604, used on 108SD30-4, from a related terminal, has the same connections, with these direct switches:
+
+| 23  | /BREAK              | PB7 |
+| 25  | /SHIFT              | PD1 |
+| 24  | /CAPS LOCK          | PD2 |
+|  1  | /CTRL               | PD3 |
+|  5  | /AUTO LF            | PD4 |
+| 22  | /LOCAL              | PD5 |
+
+However, the parallel signal on this board is the key number, left-to-right, top-to-bottom, and not ASCII, and unchanged for the shifts.
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16604 Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DBELL_MODE=BELL_MODE_TONE \
+  -DDIRECT_KEYS=5 -DDIRECT_INVERT_MASK=0x1F \
+  -DREADY_ACK_MODE=READY_ACK_MODE_DTR -DREADY_ACK_ON_STATE=READY_ACK_ON_LOW \
+  -DDEBUG_ACTIONS
 ```
 
 ## Micro Switch SC-15142 ##
