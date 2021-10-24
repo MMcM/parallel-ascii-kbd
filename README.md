@@ -691,3 +691,39 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Scientific Devices Keyboard\"" \
   -DDIRECT_KEY_12=DIRECT_HERE_IS -DDIRECT_KEY_15=DIRECT_BREAK \
   -DDIRECT_KEY_1=DIRECT_ANSWERBACK_2 -DANSWERBACK_2="\"Goodbye\\r\\n\""
 ```
+
+## Maxi-Switch 2160094 ##
+
+Uses a MCS-48 controller with firmware label MS 0319019.
+
+### Connections ###
+
+Has 16-pin DIP and 18-pin edge connectors.
+
+|DIP | Edge | Signal        | AVR |
+|----|------|---------------|-----|
+|  1 |  A   | K45           | D1  |
+|  2 |  B   | K45           | GND |
+|  3 |  C   | K15           | D2  |
+|  4 |  D   | K15           | GND |
+|  5 |  E   | /REPT         |     |
+|  6 |  F   | /STROBE       | D0  |
+|  7 |  H   | B5            | B5  |
+|  8 |  J   | B6            | B6  |
+|  9 |  K   | B4            | B4  |
+| 10 |  L   | B3            | B3  |
+| 11 |  M   | B2            | B2  |
+| 12 |  N   | B1            | B1  |
+| 13 |  P   | B0            | B0  |
+| 14 |  R   | VCC           | VCC |
+| 15 |  S   | GND           | GND |
+| 16 |      | N/C           |     |
+|    |  T   | JUMPER        |     |
+|    |  U   | JUMPER        |     |
+|    |  V   | JUMPER        |     |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Maxi-Switch 2160094 Keyboard\"" -DCHAR_INVERT
+```
