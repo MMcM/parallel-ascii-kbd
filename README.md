@@ -109,6 +109,40 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-11234 Keyboard\"" \
   -DDIRECT_KEYS=3 -DDIRECT_PORT_UNUSED=4 -DDIRECT_INVERT_MASK=5
 ```
 
+## Micro Switch SW-11769 ##
+
+The same switches and keycaps as the previous, in a similar layout. Uses only 5V logic.
+Again control and shift keys is also available separately,
+
+The board I tested had some hand-modifications.
+
+### Connections ###
+
+| PCB | Signal              | AVR |
+|-----|---------------------|-----|
+| 3   | +5V                 | +5V |
+| 4   | GND                 | GND |
+| 5   | CTRL                | PD2 |
+|     |                     |     |
+| A   | STROBE              | PD0 |
+| C   | +5V                 | +5V |
+| D   | GND                 | GND |
+| E   | SHIFT               | PD1 |
+| F   | CHAR BIT 2          | PB1 |
+| H   | CHAR BIT 1          | PB0 |
+| J   | CHAR BIT 4          | PB3 |
+| K   | CHAR BIT 3          | PB2 |
+| L   | CHAR BIT 5          | PB4 |
+| M   | CHAR BIT 6          | PB5 |
+| N   | CHAR BIT 7          | PB6 |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-11769 Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DDIRECT_KEYS=2
+```
+
 ## Micro Switch SD-16234 ##
 
 This PCB seems to have been used in a variety of keyboards. The one I tested as a 99SD24-3.
