@@ -761,3 +761,34 @@ Has 16-pin DIP and 18-pin edge connectors.
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"Maxi-Switch 2160094 Keyboard\"" -DCHAR_INVERT
 ```
+
+## Xerox 820 ASCII ##
+
+The X928 ASCII only Maxi-Switch variant of the 820 keyboard pictured [here](http://www.bitsavers.org/pdf/xerox/820-II/pictures/820_Maxi-Switch_KBD/).
+
+### Connections ###
+
+Has a DB-25 connector.
+
+| J2  | Signal  | AVR |
+|-----|---------|-----|
+|  1  | DB0     | B0  |
+|  2  | DB1     | B1  |
+|  3  | DB2     | B2  |
+|  4  | DB3     | B3  |
+|  5  | DB4     | B4  |
+|  6  | DB5     | B5  |
+|  7  | DB6     | B6  |
+|  8  | DB7     | B7  |
+|  9  | /STROBE | D0  |
+|10-12| N/C     |     |
+| 13  | +5V     | +5V |
+|14-22| GND     | GND |
+|23,24| N/C     |     |
+| 25  | GND     | GND |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Xerox 820 ASCII Keyboard\""
+```
