@@ -792,3 +792,53 @@ Has a DB-25 connector.
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"Xerox 820 ASCII Keyboard\""
 ```
+
+## Datamedia 1520 ##
+
+The PCB this was tested on is 3DAAA022, but similar ones should be the same.
+
+Connection to the keyboard is through a DB-25 to a 30-pin edge connector.
+
+The schematic for variants of this keyboard start on page 40 in [Datamedia Elite 1520A Technical Manual](http://bitsavers.org/pdf/datamedia/Datamedia_Elite_1520A_Technical_Manual.pdf).
+
+### Connections ###
+
+Needed for this:
+
+| DB-25 | Edge | Signal     | AVR |
+|    21 |    1 | GND        | GND |
+|    23 |    2 | +5V        | +5V |
+|    22 |    3 | /RPT       | PD1 |
+|     2 |    4 | /KBDTAPE   | PD2 |
+|     4 |    5 |            |     |
+|     6 |    6 |            |     |
+|    18 |   13 | /BRK       | PD3 |
+|       |   15 | /STRBDIS   |     |
+|    14 |    A | GND        | GND |
+|    16 |    B | +5V        | +5V |
+|     1 |    C | /KB1       | PB0 |
+|     3 |    D | /KB2       | PB1 |
+|     5 |    E | /KB3       | PB2 |
+|     7 |    F | /KB4       | PB3 |
+|     9 |    H | /KB5       | PB4 |
+|    11 |    J | /KB6       | PB5 |
+|    13 |    K | /KB7       | PB6 |
+|    20 |    L | /KBSTR     | D0  |
+|       |    M | /KBSTR     |     |
+|    10 |    P | -12V       |     |
+|     8 |    R |            | PD4 |
+|    12 |    S |            |     |
+
+-12V is only needed if the chip in slot 12 is present, which it was not in the one tested.
+
+There is a jumper FF to connect switch 78 (LOAD TAPE) to GG switch 13 (TAPE), making them both (4), or alternatively EE to (R).
+The default seems to be FF-GG, so both keys are the same.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Datamedia 1520\"" \
+  -DCHAR_INVERT \
+  -DDIRECT_KEYS=3 -DDIRECT_INVERT_MASK=7 -DENABLE_SOF_EVENTS -DDIRECT_DEBOUNCE=5 \
+  -DDIRECT_KEY_3=DIRECT_BREAK
+```
