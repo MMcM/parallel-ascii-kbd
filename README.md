@@ -806,6 +806,7 @@ The schematic for variants of this keyboard start on page 40 in [Datamedia Elite
 Needed for this:
 
 | DB-25 | Edge | Signal     | AVR |
+|-------|------|------------|-----|
 |    21 |    1 | GND        | GND |
 |    23 |    2 | +5V        | +5V |
 |    22 |    3 | /RPT       | PD1 |
@@ -823,7 +824,7 @@ Needed for this:
 |     9 |    H | /KB5       | PB4 |
 |    11 |    J | /KB6       | PB5 |
 |    13 |    K | /KB7       | PB6 |
-|    20 |    L | /KBSTR     | D0  |
+|    20 |    L | /KBSTR     | PD0 |
 |       |    M | /KBSTR     |     |
 |    10 |    P | -12V       |     |
 |     8 |    R |            | PD4 |
@@ -841,4 +842,44 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Datamedia 1520\"" \
   -DCHAR_INVERT \
   -DDIRECT_KEYS=3 -DDIRECT_INVERT_MASK=7 -DENABLE_SOF_EVENTS -DDIRECT_DEBOUNCE=5 \
   -DDIRECT_KEY_3=DIRECT_BREAK
+```
+
+## Data General Dasher D2 ##
+
+Connection to the keyboard is through a 15-pin AMP connector to a 20-pin edge connector.
+
+All the work is done by a GI decoder 20-04592-014, similar to the [AY-3-4592](https://archive.org/details/bitsavers_gidataBooknicsDataCatalog_36703971/page/n53/mode/2up).
+
+### Connections ###
+
+The edge connector and the PCB use slightly different numbering conventions.
+
+| AMP | Edge | PCB | Signal | AVR |
+|-----|------|-----|--------|-----|
+|   1 |    1 |   1 | GND    | GND |
+|     |    A |   2 | GND    |     |
+|   2 |    3 |   5 | /STB   | PD0 |
+|   3 |    5 |   9 | D6     | PB5 |
+|   4 |    C |   6 |        |     |
+|   5 |    4 |   7 | D8     | PB7 |
+|   6 |    D |   8 | D7     | PB6 |
+|   7 |    6 |  11 | D4     | PB3 |
+|   8 |    E |  10 | D5     | PB4 |
+|   9 |    F |  12 | D3     | PB2 |
+|  10 |    7 |  13 | D2     | PB1 |
+|  11 |    H |  14 | D1     | PB0 |
+|  12 |    K |  18 | D10    | PD1 |
+|  13 |   10 |  19 | PRE    | VCC |
+|  14 |    L |  20 | /BUSY  | VCC |
+|  15 |    2 |   3 | VCC    | VCC |
+
+The D10 bit is only used for BREAK.
+The two input pins (reset and strobe inhibit) can just be connected to Vcc.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Dasher D2\"" \
+  -DCHAR_MASK=0xFF \
+  -DDIRECT_KEYS=1 -DENABLE_SOF_EVENTS -DDIRECT_INVERT_MASK=1 -DDIRECT_KEY_1=DIRECT_BREAK
 ```
