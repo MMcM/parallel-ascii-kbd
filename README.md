@@ -883,3 +883,42 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Dasher D2\"" \
   -DCHAR_MASK=0xFF \
   -DDIRECT_KEYS=1 -DENABLE_SOF_EVENTS -DDIRECT_INVERT_MASK=1 -DDIRECT_KEY_1=DIRECT_BREAK
 ```
+
+## Micro Switch SD-16046 ##
+
+This is the keyboard for the IBM PT-2 terminal; photos on [Bitsavers](http://www.bitsavers.org/pdf/ibm/PT-2/keyboard/), perhaps from an eBay listing.
+
+<b>Note</b>: this keyboard is <em>not</em> ASCII, but built more or less the same as ones that are.
+
+### Connections ###
+
+A 16 pin header with one pin missing.
+
+| PCB | Signal              | AVR |
+|-----|---------------------|-----|
+| 1   | -12V                |     |
+| 2   | GND                 | GND |
+| 3   | +5V                 | +5V |
+| 5   | /STROBE             | PD0 |
+| 6   |                     | PD1 |
+| 7   | CHAR BIT 8          | PB7 |
+| 8   | CHAR BIT 7          | PB6 |
+| 9   | CHAR BIT 6          | PB5 |
+| 10  | CHAR BIT 5          | PB4 |
+| 11  | CHAR BIT 4          | PB3 |
+| 12  | CHAR BIT 3          | PB2 |
+| 13  | CHAR BIT 2          | PB1 |
+| 14  | CHAR BIT 1          | PB0 |
+| 15  | CHAR PARITY BIT     | PD2 |
+| 16  | /KEYBD RESET        | PD3 |
+
+### Build ###
+
+The `DEBUG_ACTIONS` is because this isn't really ASCII.
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"IBM PT-2\"" \
+  -DCHAR_MASK=0xFF \
+  -DDIRECT_KEYS=3 -DDIRECT_INVERT_MASK=7 -DDIRECT_KEY_3=DIRECT_BREAK \
+  -DDEBUG_ACTIONS
+```
