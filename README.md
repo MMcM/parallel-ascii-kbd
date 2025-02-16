@@ -300,7 +300,7 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SC-15142 Keyboard\"" \
 
 This PCB is used on 78SD12-6, a terminal for the AM International AMText word processor. But many of the key legends do not match the character sent. This could be because it is used elsewhere or just due to the encoder chip.
 
-Has an 20-pin edge connector.
+Has a 20-pin edge connector.
 
 ### Connections ###
 
@@ -680,7 +680,7 @@ This keyboard has no model number, although very similar looking ones are labele
 See, for instance, [here](http://www.vcfed.org/forum/showthread.php?68827-Are-these-parallel-ASCII&p=567157#post567157) and
 [here](http://retro.hansotten.nl/kim-1-rev-b-ceramic-cpu-ascii-display-ascii-keyboard-brutech-4k-ram/).
 
-Has an 24-pin edge connector, which is numbered 1-12 and 13-24 rather than A-N.
+Has a 24-pin edge connector, which is numbered 1-12 and 13-24 rather than A-N.
 
 There are 7 LEDs lit directly by the data output signals. They therefore show the (LSB left, inverted) ASCII character while the key is help down.
 
@@ -921,4 +921,38 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"IBM PT-2\"" \
   -DCHAR_MASK=0xFF \
   -DDIRECT_KEYS=3 -DDIRECT_INVERT_MASK=7 -DDIRECT_KEY_3=DIRECT_BREAK \
   -DDEBUG_ACTIONS
+```
+
+## Micro Switch SD-16614 ##
+
+### Connections ###
+
+Has a 30-pin edge connector.
+
+| Edge | Signal           | AVR |
+|------|------------------|-----|
+| 1    | +5V              | +5V |
+| 5    | CHAR PARITY BIT  | PB7 |
+| 6    | CHAR BIT 1       | PB0 |
+| 7    | CHAR BIT 2       | PB1 |
+| 8    | CHAR BIT 3       | PB2 |
+| 9    | CHAR BIT 4       | PB3 |
+| 10   | CHAR BIT 5       | PB4 |
+| 11   | CHAR BIT 6       | PB5 |
+| 12   | CHAR BIT 7       | PB6 |
+| 13   | CHAR BIT 8       |     |
+| A    | GND              | GND |
+| B    | -12V             |     |
+| F    | KEY PRESS        | PD0 |
+| H    | /STROBE          |     |
+| J    | SHIFT            | PD1 |
+| K    | CTRL             | PD2 |
+| N    | SW 94 (CONTINUE) | PD3 |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16614 Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DPARITY_CHECK=PARITY_ODD \
+  -DDIRECT_KEYS=3
 ```
