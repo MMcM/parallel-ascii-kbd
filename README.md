@@ -61,7 +61,10 @@ There are two optional signals in the to-keyboard direction. `C6` is a bell, eit
 
 ## Micro Switch SW-11234 ##
 
-A scan of the hardware documentation that came with this keyboard can 
+* Board: 55SW5-2
+* Encoder: SW-20306 (AMI)
+
+A scan of the hardware documentation that came with this keyboard can
 be found in the [wiki](https://github.com/MMcM/micro-switch-ascii-kbd/wiki/scanned/MicroSwitch.pdf).
 
 This keyboard is mostly the same as the
@@ -74,12 +77,8 @@ so it would be possible to recover more of the key state from the
 7-bit character. But, really, there aren't enough keys for this to be
 a modern keyboard.
 
-The microcontroller is labeled SW-20306 and is, I believe, a masked ROM version
-of some AMI 4-bit MCU from the 70s. It is CMOS and Vcc is -12V DC. Vdd is +5V
-DC, for the control signals, both inputs from the Hall Effect switches and
-character output. A DC-DC isolating converter like the
-[Mornsun](http://www.mornsun-power.com/public/pdf/DCDC/B_D-1W.pdf) B0512S-1W
-seems to work fine.
+Vdd is +5V DC, for the control signals, both inputs from the Hall Effect switches and
+character output. The CMOS encoder needs Vgg of [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
 
 ### Connections ###
 
@@ -110,6 +109,9 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-11234 Keyboard\"" \
 ```
 
 ## Micro Switch SW-11769 ##
+
+* Board: 55SW1-10
+* Encoders: RW-10038, RW-10039
 
 The same switches and keycaps as the previous, in a similar layout. Uses only 5V logic.
 Again control and shift keys is also available separately,
@@ -144,6 +146,9 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-11769 Keyboard\"" \
 ```
 
 ## Micro Switch SD-16234 ##
+
+* Board: 99SD24-3
+* Encoder: 8748
 
 This PCB seems to have been used in a variety of keyboards. The one I tested as a 99SD24-3.
 
@@ -197,7 +202,10 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16234 Keyboard\"" -DCHAR_MASK=0xFF
 
 ## Micro Switch SD-16534 ##
 
-This PCB is used at least on 91SD30-3, which seems to be part of a Honeywell BKBD terminal.
+* Board: 91SD30-3
+* Encoder: 8048
+
+This keyboard seems to be part of a Honeywell BKBD terminal.
 
 Connection to the keyboard is through a DB-25 (with a special cable not all of whose signals are connected, though there would be no harm if they were).
 
@@ -261,7 +269,10 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16604 Keyboard\"" \
 
 ## Micro Switch SC-15142 ##
 
-This PCB is used at least on 63ST13-1, which seems to be part of a printing terminal, with firmware SD-03041.
+* Board: 63ST13-1
+* Encoder: 8048 (firmware SD-03041)
+
+This keyboard seems to be part of a printing terminal.
 
 Connection to the keyboard is through a 20-pin IDC shrouded header.
 
@@ -298,9 +309,14 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SC-15142 Keyboard\"" \
 
 ## Micro Switch SD-16192 ##
 
-This PCB is used on 78SD12-6, a terminal for the AM International AMText word processor. But many of the key legends do not match the character sent. This could be because it is used elsewhere or just due to the encoder chip.
+* Board: 78SD12-6
+* Encoder: SW-20478K (AMI)
+
+This keyboard is part of a terminal for the AM International AMText word processor. But many of the key legends do not match the character sent. This could be because it is used elsewhere or just due to the encoder chip.
 
 Has a 20-pin edge connector.
+
+Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
 
 ### Connections ###
 
@@ -375,6 +391,8 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"LK01 Keyboard\"" -DCONTROL_STROBE_TRIGGER=TRIG
 ```
 
 ## Consul 262.3 ##
+
+* Encoder: Tesla MH103
 
 A late Soviet Hall Effect keyboard.
 
@@ -493,7 +511,7 @@ Some sources:
 
 A ribbon cable connected to a 16-pin DIP on the motherboard.
 
-The encoder also needs -12VDC, but not with very much current, so a cheap converter from the USB +5VDC works fine.
+The encoder also needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
 
 | DIP | Signal       | AVR |
 |-----|--------------|-----|
@@ -559,7 +577,7 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Apple I Keyboard\"" \
 
 ## Maxi-Switch 216004 ##
 
-Uses an SMC 3603 encoder, which seems to be the same as the KR3600.
+* Encoder: SMC 3603, which seems to be the same as the KR3600.
 
 ### Connections ###
 
@@ -599,9 +617,10 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Maxi-Switch 216004 Keyboard\"" \
 
 ## Jameco JE610 ##
 
+* Encoder: GI AY-5-2376
+
 Another keyboard sold to early hobbyists.
 ([Datasheet](http://www.bitsavers.org/pdf/jameco/Jameco_JE_610_ASCII_Keyboard_Datasheet.pdf)).
-It uses the GI AY-5-2376 encoder.
 
 Output is via a 16-pin DIP (`J1`) and an 18-pin edge connector (`P1`).
 
@@ -676,6 +695,8 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"TEC EKA Keyboard\"" \
 
 ## Scientific Devices ##
 
+Encoder: GI
+
 This keyboard has no model number, although very similar looking ones are labeled KBMO two, suggesting that this might be KBMO one.
 See, for instance, [here](http://www.vcfed.org/forum/showthread.php?68827-Are-these-parallel-ASCII&p=567157#post567157) and
 [here](http://retro.hansotten.nl/kim-1-rev-b-ceramic-cpu-ascii-display-ascii-keyboard-brutech-4k-ram/).
@@ -684,7 +705,7 @@ Has a 24-pin edge connector, which is numbered 1-12 and 13-24 rather than A-N.
 
 There are 7 LEDs lit directly by the data output signals. They therefore show the (LSB left, inverted) ASCII character while the key is help down.
 
-Needs -12V for the CMOS keyboard decoder.
+Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos) for the CMOS keyboard decoder.
 
 ### Connections ###
 
@@ -728,7 +749,7 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Scientific Devices Keyboard\"" \
 
 ## Maxi-Switch 2160094 ##
 
-Uses a MCS-48 controller with firmware label MS 0319019.
+* Encoder: MCS-48 (firmware MS 0319019).
 
 ### Connections ###
 
@@ -764,6 +785,8 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Maxi-Switch 2160094 Keyboard\"" -DCHAR_INVERT
 
 ## Xerox 820 ASCII ##
 
+Encoder: NEC 8048
+
 The X928 ASCII only Maxi-Switch variant of the 820 keyboard pictured [here](http://www.bitsavers.org/pdf/xerox/820-II/pictures/820_Maxi-Switch_KBD/).
 
 ### Connections ###
@@ -795,7 +818,8 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Xerox 820 ASCII Keyboard\""
 
 ## Datamedia 1520 ##
 
-The PCB this was tested on is 3DAAA022, but similar ones should be the same.
+The PCB this was tested on is 3DAAA022, but similar ones should be the same. Encoding done with 74-series TTL.
+([Schematics](https://archive.org/details/bitsavers_datamediaDechnicalManual_2838598/page/n39/mode/2up)).
 
 Connection to the keyboard is through a DB-25 to a 30-pin edge connector.
 
@@ -846,9 +870,9 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Datamedia 1520\"" \
 
 ## Data General Dasher D2 ##
 
-Connection to the keyboard is through a 15-pin AMP connector to a 20-pin edge connector.
+* Encoder: GI 20-04592-014, similar to the [AY-3-4592](https://archive.org/details/bitsavers_gidataBooknicsDataCatalog_36703971/page/n53/mode/2up).
 
-All the work is done by a GI decoder 20-04592-014, similar to the [AY-3-4592](https://archive.org/details/bitsavers_gidataBooknicsDataCatalog_36703971/page/n53/mode/2up).
+Connection to the keyboard is through a 15-pin AMP connector to a 20-pin edge connector.
 
 ### Connections ###
 
@@ -884,11 +908,58 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"Dasher D2\"" \
   -DDIRECT_KEYS=1 -DENABLE_SOF_EVENTS -DDIRECT_INVERT_MASK=1 -DDIRECT_KEY_1=DIRECT_BREAK
 ```
 
+## IDA K100 BE ##
+
+* Encoder: 6805
+
+A keyboard for the Apple II (and clones). Has function keys for sending various BASIC-language related macros.
+
+A scan of the manual that came with this keyboard can be found in the
+[wiki](https://github.com/MMcM/micro-switch-ascii-kbd/wiki/scanned/k-100.pdf).
+The key legends do not always match.
+
+### Connections ###
+
+Keyboard itself connects to a DA-15. The keyboard came with some external boards to adapt to a 16-pin DIP.
+
+| DIP | DA15 | PCB | Signal       | AVR |
+|-----|------|-----|--------------|-----|
+|  1  | 10   | 11  | +5V          | +5V |
+|  2  |  6   | 10  | STB          | PD0 |
+|  3  | 11   |  2  | S16 (RST)    | PD1 |
+|  4  |      |     |              |     |
+|  5  |  1   |  4  | D5           | PB5 |
+|  6  |  3   |  5  | D4           | PB4 |
+|  7  |  2   |  3  | D6           | PB6 |
+|  8  |  7   |  1  | GND          | GND |
+|  9  | 12   | 12  | S85 (filled) | PD2 |
+| 10  | 14   |  7  | D2           | PB2 |
+| 11  |  4   |  6  | D3           | PB3 |
+| 12  | 15   |  9  | D0           | PB0 |
+| 13  | 13   |  8  | D1           | PB1 |
+| 14  | 12   | 12  |              |     |
+| 15  |      |     | -12V (N/A)   |     |
+| 16  |  9   | 13  | S83 (hollow) | PD3 |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"K100 Keyboard\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING \
+  -DDIRECT_KEYS=3 -DDIRECT_INVERT_MASK=7 -DDIRECT_DEBOUNCE=5 -DENABLE_SOF_EVENTS \
+  -DDIRECT_KEY_1=DIRECT_BREAK
+```
+
 ## Micro Switch SD-16046 ##
+
+* Board: 78SD5-5
+* Encoder: SW-20293K (AMI)
 
 This is the keyboard for the IBM PT-2 terminal; photos on [Bitsavers](http://www.bitsavers.org/pdf/ibm/PT-2/keyboard/), perhaps from an eBay listing.
 
 <b>Note</b>: this keyboard is <em>not</em> ASCII, but built more or less the same as ones that are.
+
+Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
 
 ### Connections ###
 
@@ -924,6 +995,11 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"IBM PT-2\"" \
 ```
 
 ## Micro Switch SD-16614 ##
+
+* Board: 66SD5-1
+* Endoder: SW-20411K (AMI)
+
+Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
 
 ### Connections ###
 
