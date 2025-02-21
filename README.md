@@ -1032,3 +1032,37 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16614 Keyboard\"" \
   -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DPARITY_CHECK=PARITY_ODD \
   -DDIRECT_KEYS=3
 ```
+
+## Micro Switch SW-11373 ##
+
+* Board: 74SW12-5
+* Endoder: SW-20426K (AMI)
+
+Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
+
+### Connections ###
+
+Has a 36-pin edge connector. This connects to a cable with a DA-15.
+
+| Edge | DA15 | Color  | Signal             | AVR |
+|------|------|--------|--------------------|-----|
+| A,1  | 15   | Red    | +5V                | +5V |
+| B,2  | 14   | Black  | GND                | GND |
+|  C   | 10   | Blue   | -12V               |     |
+|  T   |      |        | SW 37 (SHIFT LOCK) |     |
+|  U   |      |        | PARITY             |     |
+|  V   |      |        | SW 56 (SHIFT)      |     |
+|  5   |  4   | Orange | /CHAR BIT 4        | PB3 |
+|  6   |  3   | Red    | /CHAR BIT 3        | PB2 |
+|  7   |  2   | Brown  | /CHAR BIT 2        | PB1 |
+|  8   |  1   | Black  | /CHAR BIT 1        | PB0 |
+| 10   |  5   | Yellow | /CHAR BIT 5        | PB4 |
+| 11   |  6   | Green  | /CHAR BIT 6        | PB5 |
+| 12   |  7   | Blue   | /CHAR BIT 7        | PB6 |
+| 15   |  9   | Violet | /STROBE            | PD0 |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-11373 Keyboard\"" -DCHAR_INVERT
+```
