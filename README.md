@@ -659,7 +659,7 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"JE610 Keyboard\"" \
 ([Schematic](https://archive.org/details/bitsavers_tec9650100awingsSep1974_20767226/page/n34/mode/1up)).
 There is no program logic on this board: it is all done with 74-series TTL.
 
-The keyboard connects via a DC-37 d-sub connector, with only 17 (15 distinct) signals.
+The keyboard connects via a DC-37 D-sub connector, with only 17 (15 distinct) signals.
 
 ### Connections ###
 
@@ -1065,4 +1065,34 @@ Has a 36-pin edge connector. This connects to a cable with a DA-15.
 
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-11373 Keyboard\"" -DCHAR_INVERT
+```
+
+## Micro Switch SW-10034 ##
+
+* Board: 64SW1-2
+
+### Connections ###
+
+Has a 24-pin edge connector, whose top is the parallel output and the bottom is direct keys.
+
+This model has a cable ending in a DC-37 D-sub connector and no direct outputs.
+
+| DC | Edge | Color              | Signal      | AVR |
+|----|------|--------------------|-------------|-----|
+| 27 |  1   | Black              | GND         | GND |
+| 35 |  2   | White w/ Red       | +5V         | +5V |
+| 31 |  4   | Orange             | /CHAR BIT 4 | PB3 |
+| 30 |  5   | Red                | /CHAR BIT 3 | PB2 |
+| 29 |  6   | Violet White Black | /CHAR BIT 2 | PB1 |
+| 28 |  7   | White w/ Black     | /CHAR BIT 1 | PB0 |
+| 12 |  8   | Violet             | PARITY      | PB7 |
+| 13 |  9   | White w/ Violet    | /CHAR BIT 7 | PB6 |
+| 14 | 10   | Green              | /CHAR BIT 6 | PB5 |
+| 32 | 11   | White w/ Green     | /CHAR BIT 5 | PB4 |
+|  9 | 12   | White              | /STROBE     | PD0 |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-10034 Keyboard\"" -DCHAR_INVERT -DPARITY_CHECK=PARITY_ODD
 ```
