@@ -1105,3 +1105,40 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SW-10034 Keyboard\"" \
   -DCHAR_INVERT -DPARITY_CHECK=PARITY_ODD
   -DDIRECT_KEYS=3
 ```
+
+## Licon 80-551077 ##
+
+* Board: Cortron 55-500551
+* Encoder: 80-551095
+
+Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
+
+### Connections ###
+
+Has a 36-pin edge connector.
+
+| Edge | Signal      | AVR |
+|------|-------------|-----|
+|   1  | CHAR BIT 3  | PB2 |
+|   2  | CHAR BIT 2  | PB1 |
+|   3  | CHAR BIT 1  | PB0 |
+|   4  | CHAR BIT 4  | PB3 |
+|   5  | KEY PRESSED |     |
+|   8  | /STROBE     | PD0 |
+|  12  | REPT        | PD1 |
+|  13  | HERE IS (?) | PD4 |
+|  18  | +5V         | +5V |
+|   A  | CHAR BIT 5  | PB4 |
+|   B  | CHAR BIT 6  | PB5 |
+|   C  | /MCA TERM   | PD2 |
+|   H  | CHAR BIT 7  | PB6 |
+|   P  | BRK         | PD3 |
+|   T  | -12V        |     |
+|   U  | GND         | GND |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Licon 80-551077 Keyboard\"" \
+  -DDIRECT_KEYS=4 -DDIRECT_INVERT_MASK=0xD -DDIRECT_KEY_3=DIRECT_BREAK -DDIRECT_KEY_4=DIRECT_HERE_IS
+```
