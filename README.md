@@ -997,7 +997,7 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"IBM PT-2\"" \
 ## Micro Switch SD-16614 ##
 
 * Board: 66SD5-1
-* Endoder: SW-20411K (AMI)
+* Encoder: SW-20411K (AMI)
 
 Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
 
@@ -1036,7 +1036,7 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"SD-16614 Keyboard\"" \
 ## Micro Switch SW-11373 ##
 
 * Board: 74SW12-5
-* Endoder: SW-20426K (AMI)
+* Encoder: SW-20426K (AMI)
 
 Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
 
@@ -1141,4 +1141,38 @@ Has a 36-pin edge connector.
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"Licon 80-551077 Keyboard\"" \
   -DDIRECT_KEYS=4 -DDIRECT_INVERT_MASK=0xD -DDIRECT_KEY_3=DIRECT_BREAK -DDIRECT_KEY_4=DIRECT_HERE_IS
+```
+
+## Key Tronic 65-0627 ##
+
+Magnetic reed. There is no program logic on this board: it is all done with 74-series TTL.
+
+### Connections ###
+
+Has a 36-pin edge connector. This connects to a cable with a DB-25.
+
+| Edge | DB | Color          | Signal      | AVR |
+|------|----|----------------|-------------|-----|
+|  A   |  5 | White w/ Black | CHAR BIT 5  | PB4 |
+|  B   |  6 | Green          | CHAR BIT 6  | PB5 |
+|  C   | 19 | Black w/ Red   | (no switch) | PD3 |
+|  D   | 20 | Blue w/ Red    | (no switch) | PD4 |
+|  E   | 21 | Red w/ White   | (no switch) | PD5 |
+|  H   |  7 | Orange w/ Red  | CHAR BIT 7  | PB6 |
+|  P   | 22 | Black w/ White | /BRK        | PD2 |
+|  U   | 14 | Black          | GROUND      | GND |
+|  1   |  3 | Green w/ White | CHAR BIT 3  | PB2 |
+|  2   |  2 | White w/ Red   | CHAR BIT 2  | PB1 |
+|  3   |  1 | Blue           | CHAR BIT 1  | PB0 |
+|  4   |  4 | Blue w/ Black  | CHAR BIT 4  | PB3 |
+|  8   | 15 | Red w/ Green   | /STROBE     | PD0 |
+| 13   | 17 | Green w/ Black | /HERE IS    | PD1 |
+| 18   | 18 | Orange         | +5V         | +5V |
+|      | 13 | Blue w/ White  | BUZZER      |     |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"KTC 65-0627 Keyboard\"" \
+  -DDIRECT_KEYS=5 -DDIRECT_INVERT_MASK=0x1F -DDIRECT_KEY_1=DIRECT_HERE_IS -DDIRECT_KEY_2=DIRECT_BREAK
 ```
