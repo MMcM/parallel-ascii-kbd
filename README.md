@@ -1176,3 +1176,31 @@ Has a 36-pin edge connector. This connects to a cable with a DB-25.
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"KTC 65-0627 Keyboard\"" \
   -DDIRECT_KEYS=5 -DDIRECT_INVERT_MASK=0x1F -DDIRECT_KEY_1=DIRECT_HERE_IS -DDIRECT_KEY_2=DIRECT_BREAK
 ```
+
+## Incoterm K2x ##
+
+* Board: Incoterm K26-02
+
+See the [Field Engineering Technical Manual](https://archive.org/details/bitsavers_incotermFiicalManualSPD1020LogicDiagrams1972_25812785/page/n139/mode/2up).
+
+### Connections ###
+
+Has a DB-25 connector on the PCB.
+A 9-pin connector inside the case connects to a row of eight GE 238 bulbs.
+
+| DB | Signal     | AVR |
+|  1 | CHAR BIT 1 | PB0 |
+|  2 | CHAR BIT 2 | PB1 |
+|  3 | CHAR BIT 3 | PB2 |
+|  4 | CHAR BIT 4 | PB3 |
+|  5 | CHAR BIT 5 | PB4 |
+|  6 | CHAR BIT 6 | PB5 |
+|  7 | CHAR BIT 7 | PB6 |
+|  8 | /MODE      | PD1 |
+|  9 | /STROBE    | PD0 |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Incoterm Keyboard\"" -DDIRECT_KEYS=1
+```
