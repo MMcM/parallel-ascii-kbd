@@ -1204,3 +1204,37 @@ A 9-pin connector inside the case connects to a row of eight GE 238 bulbs.
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"Incoterm Keyboard\"" -DDIRECT_KEYS=1
 ```
+
+## The Keyboard Company Numeric Keypad ##
+
+An external numpad for the Apple II.
+
+### Connections ###
+
+The keypad itself has a 14-pin Molex connector. This, in turn, connects to a daughter card with two 16-pin DIP connectors, one male and one female, and a pair of buffers chips. See [Deskthority Wiki](https://deskthority.net/wiki/The_Keyboard_Company_Numeric_Keypad) for a photo.
+
+In this way, the keypad passes through other ASCII codes from the main keyboard, as well as adding the numpad ones.
+
+| P1 | Color           | Signal    | AVR |
+|----|-----------------|-----------|-----|
+|  1 | Violet          | Ground    | GND |
+|  2 | Blue            | D5        | PB5 |
+|  3 | Gray            | D4        | PB4 |
+|  4 | White           | D3        | PB3 |
+|  5 | Red             | D0        | PB0 |
+|  6 | Orange          | D1        | PB1 |
+|  7 | White w/ Gray   | D2        | PB2 |
+|  8 | White w/ Brown  |           |     |
+|  9 | Black           | +5V       | +5V |
+| 10 | Brown           | STB OUT   | PD0 |
+| 11 | Green           | KEY DOWN  |     |
+| 12 | Yellow          | *KEY DOWN |     |
+| 13 | White w/ Red    |           |     |
+| 14 | White w/ Orange | STB IN    |     |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"TKC Numpad\"" \
+  -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCHAR_MASK=0x3F
+```
