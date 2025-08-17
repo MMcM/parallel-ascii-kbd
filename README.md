@@ -1238,3 +1238,41 @@ In this way, the keypad passes through other ASCII codes from the main keyboard,
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"TKC Numpad\"" \
   -DCONTROL_STROBE_TRIGGER=TRIGGER_RISING -DCHAR_MASK=0x3F
 ```
+
+## Writehander ##
+
+An ASCII chording keyboard. See [1978 Interface Age](https://archive.org/details/197801InterfaceAgeV03I01/page/56/mode/2up).
+Four chorded buttons control the low four bits; one of four other buttons controls the high bits and sends the character.
+
+The version described there and [here](http://cini.classiccmp.org/pdf/kilobaud/Pet%20User%20Port%20Cookbook%20(0379).pdf) has an ACK signal, which the one here lacks. Instead, it has a key down signal and instead of jumpers brings out three signals with both polarities.
+
+### Connections ###
+
+The device comes with a 16-conductor 1mm ribbon cable.
+
+|  # | Color  | Signal      | AVR |
+|----|--------|-------------|-----|
+|  1 | Brown  | CHAR BIT 1  | PB0 |
+|  2 | Red    | +12V (NC)   |     |
+|  3 | Orange | CHAR BIT 2  | PB1 |
+|  4 | Yellow | Ground      | GND |
+|  5 | Green  | CHAR BIT 3  | PB2 |
+|  6 | Blue   | +5V         | +5V |
+|  7 | Violet | CHAR BIT 4  | PB3 |
+|  8 | Gray   | /KEY DOWN   |     |
+|  9 | White  | CHAR BIT 5  | PB4 |
+| 10 | Black  | KEY DOWN    |     |
+| 11 | Brown  | CHAR BIT 6  | PB5 |
+| 12 | Red    | /STROBE     |     |
+| 13 | Orange | CHAR BIT 7  | PB6 |
+| 14 | Yellow | STROBE      | PD0 |
+| 15 | Green  | CHAR BIT 8  | PB7 |
+| 16 | Blue   | /CHAR BIT 8 |     |
+
+The high bit (parity) never changes; one can pick always high or always low; or just ignore it.
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Writehander\""
+```
