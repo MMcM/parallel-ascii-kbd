@@ -1276,3 +1276,48 @@ The high bit (parity) never changes; one can pick always high or always low; or 
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"Writehander\""
 ```
+
+## Controls Research Corp ##
+
+Uses MC830 series DTL.
+
+### Connections ###
+
+Has a 24-pin edge connector.
+
+The PCB has space for 12 switches to ground, which are the direct signals.
+These are not present on the board tested.
+
+| Edge | Signal        | AVR |
+|------|---------------|-----|
+|  1   | GROUND        | GND |
+|  2   | DIRECT KEY 12 | PF4 |
+|  3   | DIRECT KEY 11 | PF3 |
+|  4   | DIRECT KEY 10 | PF2 |
+|  5   | DIRECT KEY 9  | PF1 |
+|  6   | DIRECT KEY 8  | PF0 |
+|  7   | DIRECT KEY 7  | PD7 |
+|  8   | CHAR BIT 6    | PB5 |
+|  9   | CHAR BIT 4    | PB3 |
+| 10   | CHAR BIT 2    | PB1 |
+| 11   | STROBE        |     |
+| 12   | /STROBE       | PD0 |
+|  A   | KEY DOWN      |     |
+|  B   | DIRECT KEY 1  | PD1 |
+|  C   | DIRECT KEY 2  | PD2 |
+|  D   | DIRECT KEY 3  | PD3 |
+|  E   | DIRECT KEY 4  | PD4 |
+|  F   | DIRECT KEY 5  | PD5 |
+|  H   | DIRECT KEY 6  | PD6 |
+|  J   | CHAR BIT 5    | PB4 |
+|  K   | CHAR BIT 7    | PB6 |
+|  L   | CHAR BIT 3    | PB2 |
+|  M   | CHAR BIT 1    | PB0 |
+|  N   | +5V           | +5V |
+
+### Build ###
+
+```
+PARALLEL_KBD_OPTS = -DKEYBOARD="\"Controls Research Corp\"" \
+  -DDIRECT_KEYS=12 -DDIRECT_INVERT_MASK=0x0FFF
+```
