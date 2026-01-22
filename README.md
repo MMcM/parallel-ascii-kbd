@@ -957,7 +957,9 @@ PARALLEL_KBD_OPTS = -DKEYBOARD="\"K100 Keyboard\"" \
 
 This is the keyboard for the IBM PT-2 terminal; photos on [Bitsavers](http://www.bitsavers.org/pdf/ibm/PT-2/keyboard/), perhaps from an eBay listing.
 
-<b>Note</b>: this keyboard is <em>not</em> ASCII, but built more or less the same as ones that are.
+<b>Note</b>: this keyboard is EBCDIC rather than ASCII, but operates more or less the same way.
+
+Has odd parity with 8 data bits, which can't currently be checked.
 
 Needs [-12V](https://github.com/MMcM/parallel-ascii-kbd/wiki/Encoding#-12vdc-for-mos).
 
@@ -972,26 +974,26 @@ A 16 pin header with one pin missing.
 | 3   | +5V                 | +5V |
 | 5   | /STROBE             | PD0 |
 | 6   |                     | PD1 |
-| 7   | CHAR BIT 8          | PB7 |
-| 8   | CHAR BIT 7          | PB6 |
-| 9   | CHAR BIT 6          | PB5 |
-| 10  | CHAR BIT 5          | PB4 |
+| 7   | CHAR PARITY BIT     | PD2 |
+| 8   | CHAR BIT 1          | PB0 |
+| 9   | CHAR BIT 2          | PB1 |
+| 10  | CHAR BIT 3          | PB2 |
 | 11  | CHAR BIT 4          | PB3 |
-| 12  | CHAR BIT 3          | PB2 |
-| 13  | CHAR BIT 2          | PB1 |
-| 14  | CHAR BIT 1          | PB0 |
-| 15  | CHAR PARITY BIT     | PD2 |
+| 12  | CHAR BIT 5          | PB4 |
+| 13  | CHAR BIT 6          | PB5 |
+| 14  | CHAR BIT 7          | PB6 |
+| 15  | CHAR BIT 8          | PB7 |
 | 16  | /KEYBD RESET        | PD3 |
 
 ### Build ###
 
-The `DEBUG_ACTIONS` is because this isn't really ASCII.
+The `DEBUG_ACTIONS` is because this is not ASCII and we don't have EBCDIC support currently.
 
 ```
 PARALLEL_KBD_OPTS = -DKEYBOARD="\"IBM PT-2\"" \
   -DCHAR_MASK=0xFF \
-  -DDIRECT_KEYS=3 -DDIRECT_INVERT_MASK=7 -DDIRECT_KEY_3=DIRECT_BREAK \
-  -DDEBUG_ACTIONS
+  -DDIRECT_KEYS=3 -DDIRECT_INVERT_MASK=5 -DDIRECT_KEY_3=DIRECT_BREAK \
+  -DDEBUG_ACTIONS -DDEBUG_NOT_ASCII
 ```
 
 ## Micro Switch SD-16614 ##

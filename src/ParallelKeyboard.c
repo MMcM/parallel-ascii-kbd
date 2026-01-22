@@ -303,7 +303,11 @@ static void CharAction(uint8_t charCode)
   char str[] = "00 ?\r\n";
   str[0] = HexDigit(charCode >> 4);
   str[1] = HexDigit(charCode & 0x0F);
-  str[3] = charCode >= ' ' && charCode <= '~' ? charCode : ' ';
+  str[3] =
+#ifndef DEBUG_NOT_ASCII
+           charCode >= ' ' && charCode <= '~' ? charCode :
+#endif
+                                                           ' ';
   CDC_Device_SendString(&VirtualSerial_CDC_Interface, str);
 }
 
